@@ -1,3 +1,3 @@
-Welcome to Clyther. 
+Welcome to OpenCL new style OpenCL python bindings.
 
-This module allows python code to be dynamically decompiled and recompiled into pencil code.
+This is built for convenience!

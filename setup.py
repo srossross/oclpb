@@ -44,7 +44,7 @@ setup(
         Topic :: Software Development
         Topic :: Software Development :: Libraries
         """.splitlines() if len(c.strip()) > 0],
-    description='Open CL Python integration',
+    description='Open CL Python bindings',
     long_description=open('README.rst').read(),
     license='BSD',
     packages=find_packages(),
