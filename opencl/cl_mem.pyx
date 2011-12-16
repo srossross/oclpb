@@ -31,7 +31,9 @@ cdef extern from "Python.h":
 
 
 cdef void pfn_notify_destroy_mem_object(cl_mem memobj, void * user_data) with gil:
-    
+    '''
+    Callback for memory destructor.
+    '''
     cdef object callback = (< object > user_data)
     
     callback()
@@ -39,7 +41,11 @@ cdef void pfn_notify_destroy_mem_object(cl_mem memobj, void * user_data) with gi
     Py_DECREF(callback)
 
 cdef class MemoryObject:
-
+    '''
+    Memory objects are categorized into two types: buffer objects, and image objects.  A buffer
+    object stores a one-dimensional collection of elements whereas an image object is used to store a 
+    two- or three- dimensional texture, frame-buffer or image.
+    '''
     BUFFER = CL_MEM_OBJECT_BUFFER
     IMAGE2D = CL_MEM_OBJECT_IMAGE2D
     IMAGE3D = CL_MEM_OBJECT_IMAGE3D    
@@ -47,7 +53,10 @@ cdef class MemoryObject:
     cdef cl_mem buffer_id
     
     def get_buffer_id(self):
-        return < size_t > self.buffer_id
+        '''
+        Return the pointer to the opencl memory object. 
+        '''
+        return ctypes.c_void_p(< size_t > self.buffer_id)
         
     def __cinit__(self):
         self.buffer_id = NULL
@@ -59,7 +68,16 @@ cdef class MemoryObject:
     
     
     def add_destructor_callback(self, callback):
-        
+        '''
+        Registers a user callback function with a memory object.  Each call to 
+        clSetMemObjectDestructorCallback registers the specified user callback function on a 
+        callback stack associated with memobj.  The registered user callback functions are called in the 
+        reverse order in which they were registered.  The user callback functions are called and then the 
+        memory object's resources are freed and the memory object is deleted.  This provides a 
+        mechanism for the application (and libraries) using memobj to be notified when the memory 
+        referenced by host_ptr, specified when the memory object is created and used as the storage bits 
+        for the memory object, can be reused or freed.
+        '''
         Py_INCREF(callback)
         
         cdef void * user_data = < void *> callback
@@ -72,6 +90,9 @@ cdef class MemoryObject:
             raise OpenCLException(err_code)
 
     property context:
+        '''
+        Return the context that this object was created with. 
+        '''
         def __get__(self):
             cdef cl_context param_value
             cdef cl_int err_code
@@ -86,6 +107,10 @@ cdef class MemoryObject:
 
             
     property type:
+        '''
+        return the enumed type of this object. 
+        One of MemoryObject.BUFFER, MemoryObject.IMAGE2D or MemoryObject.IMAGE3D
+        '''
         def __get__(self):
     
             cdef cl_mem_object_type param_value
@@ -100,6 +125,9 @@ cdef class MemoryObject:
             return param_value
             
     property mem_size:
+        '''
+        Return the size in bytes of this memory object.
+        '''
         def __get__(self):
     
             cdef size_t param_value
@@ -114,6 +142,9 @@ cdef class MemoryObject:
             return param_value
 
     property _refcount:
+        '''
+        Return the OpenCL internal refrence count of this object. 
+        '''
         def __get__(self):
             cdef cl_uint param_value
             cdef cl_int err_code
@@ -139,6 +170,9 @@ cdef class MemoryObject:
             return param_value
         
     property base_offset:
+        '''
+        Return the offset from `base` of this is a subbuffer. 
+        '''
         def __get__(self):
             
             cdef size_t param_value
@@ -153,11 +187,15 @@ cdef class MemoryObject:
             return param_value
     
     cdef cl_mem _get_base(self):
-            cdef cl_mem param_value
-            clGetMemObjectInfo(self.buffer_id, CL_MEM_ASSOCIATED_MEMOBJECT, sizeof(cl_mem), < void *>& param_value, NULL)
-            return param_value
+    
+        cdef cl_mem param_value
+        clGetMemObjectInfo(self.buffer_id, CL_MEM_ASSOCIATED_MEMOBJECT, sizeof(cl_mem), < void *>& param_value, NULL)
+        return param_value
     
     property base:
+        '''
+        Return the original memobject if this is a sub-buffer. 
+        '''
         def __get__(self):
             cdef cl_mem param_value
             cdef cl_int err_code
@@ -174,7 +212,10 @@ cdef class MemoryObject:
     
     
 cdef class DeviceMemoryView(MemoryObject):
-    
+    '''
+    A buffer object stores a one-dimensional collection of elements.  Elements of a buffer object can 
+    be a scalar data type (such as an int, float), vector data type, or a user-defined structure
+    '''
     cdef Py_buffer * buffer    
     cdef object __weakref__
     cdef public object _host_pointer
@@ -211,18 +252,22 @@ cdef class DeviceMemoryView(MemoryObject):
             return layout
         
     property ndim:
+        'number of dimensions'
         def __get__(self):
             return self.buffer.ndim
 
     property readonly:
+        'Is this memory writable'
         def __get__(self):
             return self.buffer.readonly
         
     property itemsize:
+        'Is size of each element'
         def __get__(self):
             return self.buffer.itemsize
         
     property format:
+        'Is ctype format of the elements'
         def __get__(self):
             if self.buffer.format != NULL:
                 return str(self.buffer.format)
@@ -230,6 +275,7 @@ cdef class DeviceMemoryView(MemoryObject):
                 return "B"
         
     property shape:
+        'Shape of the array'
         def __get__(self):
             shape = []
             for i in range(self.buffer.ndim):
@@ -237,6 +283,7 @@ cdef class DeviceMemoryView(MemoryObject):
             return tuple(shape)
 
     property strides:
+        'Strides of the array'
         def __get__(self):
             strides = []
             for i in range(self.buffer.ndim):
@@ -244,7 +291,10 @@ cdef class DeviceMemoryView(MemoryObject):
             return tuple(strides)
         
     def map(self, queue, blocking=True, readable=True, writeable=True):
-        
+        '''
+        enqueues a command to map a region of the buffer object given by buffer into the host address 
+        space and returns a pointer to this mapped region.
+        '''
         cdef cl_map_flags flags = 0
         
         if readable: 
@@ -258,7 +308,9 @@ cdef class DeviceMemoryView(MemoryObject):
 
     @classmethod
     def from_host(cls, context, host, copy=True, readable=True, writeable=True):
-        
+        '''
+        Create an OpenCL buffer from a Python memoryview object.
+        '''
         if not CyContext_Check(context):
             raise TypeError("argument 'context' must be a valid opencl.Context object")
         
@@ -398,6 +450,7 @@ cdef class DeviceMemoryView(MemoryObject):
         return CyView_Create(sub_buffer, buffer, 0)
     
     property size:
+        'Total number of elements'
         def __get__(self):
             shape = self.shape
             size = 1
@@ -406,6 +459,7 @@ cdef class DeviceMemoryView(MemoryObject):
             return size
 
     property nbytes:
+        'Total number of bytes'
         def __get__(self):
             return self.size * self.buffer.itemsize
 
@@ -413,6 +467,7 @@ cdef class DeviceMemoryView(MemoryObject):
         return self.size 
             
     property is_contiguous:
+        'is this array C-contiguous'
         def __get__(self):
             
             strides = [self.buffer.itemsize]
@@ -424,7 +479,9 @@ cdef class DeviceMemoryView(MemoryObject):
             return self.strides == tuple(strides[::-1])
         
     def copy(self, queue):
-        
+        '''
+        Copy this buffer into a new object
+        '''
         cdef size_t src_row_pitch = 0   
         cdef size_t src_slice_pitch = 0 
         cdef size_t dst_row_pitch = 0
@@ -482,7 +539,9 @@ cdef class DeviceMemoryView(MemoryObject):
         return int(ctype.value)
      
     def item(self, queue=None):
-        
+        '''
+        Return a python object if the size of this array is 1. 
+        '''
         if self.size != 1:
             raise ValueError('can only convert an array  of size 1 to a Python scalar')
         if queue is None:
@@ -500,21 +559,31 @@ cdef class DeviceMemoryView(MemoryObject):
         
         
     def read(self, queue, out, wait_on=(), blocking=False):
-        queue.enqueue_read_buffer(self, out, 0, self.nbytes, wait_on, blocking_read=blocking)
+        '''
+        buf.read(queue, out, wait_on=(), blocking=False)
+        
+        Read this buffer into a memory view
+        '''
+        return queue.enqueue_read_buffer(self, out, 0, self.nbytes, wait_on, blocking_read=blocking)
 
     def write(self, queue, buf, wait_on=(), blocking=False):
         '''
         view.write(queue, buf, wait_on=(), blocking=False)
         
-        Write data to the device.
+        Write data from a memoryview to the device.
         '''
-        queue.enqueue_write_buffer(self, buf, 0, self.nbytes, wait_on, blocking_read=blocking)
+        return queue.enqueue_write_buffer(self, buf, 0, self.nbytes, wait_on, blocking_read=blocking)
            
     def __releasebuffer__(self, Py_buffer * view):
         pass
     
     @classmethod
     def _view_as_this(cls, obj):
+        '''
+        view DeviceMemoryView obj as this class.   
+        
+        Call this for subclasses of DeviceMemoryView.
+        '''
         if not isinstance(obj, DeviceMemoryView):
             raise TypeError('can not create a new memory view from obj %r' % obj)
             
@@ -542,7 +611,11 @@ cdef class DeviceMemoryView(MemoryObject):
         return CyView_CreateSubclass(cls, buffer_id, buffer, 1) 
 
 def empty(context, shape, ctype='B'):
+    '''
+    empty(context, shape, ctype='B') -> view
     
+    Create an empty buffer.
+    '''
     if not CyContext_Check(context):
         raise TypeError("argument 'context' must be a valid opencl.Context object")
 
@@ -588,6 +661,9 @@ def empty(context, shape, ctype='B'):
     return CyView_Create(buffer_id, buffer, 0)
     
 cdef class MemoryViewMap:
+    '''
+    context manager for mapping and unmapping buffers.
+    '''
     
     cdef cl_command_queue command_queue
 #    cdef DeviceMemoryView dview
@@ -671,6 +747,8 @@ cdef class MemoryViewMap:
         pass
     
 cdef class ImageFormat:
+    '''
+    '''
     CHANNEL_ORDERS = {
         CL_R : 'CL_R',
         CL_Rx : 'CL_Rx',
