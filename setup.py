@@ -21,13 +21,13 @@ clgl = Extension('opencl.clgl', ['opencl/clgl.pyx'], extra_link_args=['-framewor
 type_formats = Extension('opencl.type_formats', ['opencl/type_formats.pyx'], include_dirs=[include_dirs])
 
 setup(
-    name='Clyther',
+    name='OpenCL',
     cmdclass={'build_ext': build_ext},
     ext_modules=[type_formats, copencl, kernel, cl_mem, context, queue, errors, clgl],
-    version='0.1',
+    version='0.1.1',
     author='Enthought, Inc.',
     author_email='srossross@enthought.com',
-    url='https://github.com/srossross/Magenta-Kangaroo',
+    url='srossross.github.com/oclpb',
     classifiers=[c.strip() for c in """\
         Development Status :: 5 - Production/Stable
         Intended Audience :: Developers
