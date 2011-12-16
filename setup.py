@@ -5,25 +5,41 @@ Created on Sep 24, 2011
 '''
 
 from setuptools import setup, find_packages, Extension
-from Cython.Distutils.build_ext import build_ext
+from os.path import join, isfile
+import os
+import sys
+from warnings import warn
 
-import numpy
-include_dirs = numpy.get_include()
+try:
+    from Cython.Distutils.build_ext import build_ext
+    cmdclass = {'build_ext': build_ext}
+except ImportError:
+    cmdclass = { }
+    
 
-copencl = Extension('opencl.copencl', ['opencl/copencl.pyx'], extra_link_args=['-framework', 'OpenCL'], include_dirs=[include_dirs])
-kernel = Extension('opencl.kernel', ['opencl/kernel.pyx'], extra_link_args=['-framework', 'OpenCL'], include_dirs=[include_dirs])
-errors = Extension('opencl.errors', ['opencl/errors.pyx'], extra_link_args=['-framework', 'OpenCL'], include_dirs=[include_dirs])
-cl_mem = Extension('opencl.cl_mem', ['opencl/cl_mem.pyx'], extra_link_args=['-framework', 'OpenCL'], include_dirs=[include_dirs])
-context = Extension('opencl.context', ['opencl/context.pyx'], extra_link_args=['-framework', 'OpenCL'], include_dirs=[include_dirs])
-queue = Extension('opencl.queue', ['opencl/queue.pyx'], extra_link_args=['-framework', 'OpenCL'], include_dirs=[include_dirs])
-clgl = Extension('opencl.clgl', ['opencl/clgl.pyx'], extra_link_args=['-framework', 'OpenCL'], include_dirs=[include_dirs])
+if 'darwin' in sys.platform:
+    flags = dict(extra_link_args=['-framework', 'OpenCL'])
+else:
+    flags = dict(libraries=['OpenCL'], include_dirs=['/usr/include/CL'], library_dirs=['/usr/lib'])
 
-type_formats = Extension('opencl.type_formats', ['opencl/type_formats.pyx'], include_dirs=[include_dirs])
+extension = lambda name, ext: Extension('.'.join(('opencl', name)), [join('opencl', name + ext)], **flags)
+pyx_extention_names = [name[:-4] for name in os.listdir('opencl') if name.endswith('.pyx')]
+
+if cmdclass:
+    ext_modules = [extension(name, '.pyx') for name in pyx_extention_names]
+else:
+    warn("Cython not installed using pre-cythonized files", UserWarning, stacklevel=1)
+    for name in pyx_extention_names:
+        required_c_file = join('opencl', name + '.c')
+        if not isfile(join('opencl', name + '.c')):
+            raise Exception("Cython is required to build a c extension from a PYX file (solution get cython or checkout a release branch)")
+    
+    ext_modules = [extension(name, '.c') for name in pyx_extention_names]
 
 setup(
     name='OpenCL',
-    cmdclass={'build_ext': build_ext},
-    ext_modules=[type_formats, copencl, kernel, cl_mem, context, queue, errors, clgl],
+    cmdclass=cmdclass,
+    ext_modules=ext_modules,
     version='0.1.1',
     author='Enthought, Inc.',
     author_email='srossross@enthought.com',

@@ -363,10 +363,14 @@ cdef class Device:
             cdef size_t dims = self.max_work_item_dimensions
             cdef size_t nbytes = sizeof(size_t) * dims
             cdef size_t * value = < size_t *> malloc(nbytes)
+            
             err_code = clGetDeviceInfo(self.device_id, CL_DEVICE_MAX_WORK_ITEM_SIZES, nbytes, < void *> value, NULL)
             if err_code != CL_SUCCESS: raise OpenCLException(err_code)
             
-            return [value[i] for i in range(dims)]
+            result = [value[i] for i in range(dims)]
+            free(value)
+            
+            return result
 
     property max_work_group_size:
         def __get__(self):
