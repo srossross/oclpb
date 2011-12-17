@@ -1,5 +1,5 @@
 
-from _cl cimport *
+from _cl cimport * 
 
 all_opencl_errors = {
 CL_SUCCESS: 'CL_SUCCESS',
@@ -88,7 +88,10 @@ completed.
 
 
 class OpenCLException(Exception):
-    def __init__(self, err_code, mapping=None):
+    def __init__(self, err_code, mapping=None, msg=None):
         if mapping is None:
             mapping = OpenCLErrorStrings
-        Exception.__init__(self, err_code, all_opencl_errors.get(err_code, 'CL_ERROR'), mapping.get(err_code, 'Uknown OpenCL error'))
+            
+        msg = msg if msg else mapping.get(err_code, 'Uknown OpenCL error')
+        
+        Exception.__init__(self, err_code, all_opencl_errors.get(err_code, 'CL_ERROR'), msg)

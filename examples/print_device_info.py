@@ -11,7 +11,7 @@ def main():
     for platform in cl.get_platforms():
         print "Platform %r version: %s" % (platform.name, platform.version)
         
-        for device in platform.devices():
+        for device in platform.devices:
             print " ++  %s Device %r" % (DMAP[device.type], device.name) 
             
             print "     | global_mem_size", device.global_mem_size / (1024 ** 2), 'Mb'

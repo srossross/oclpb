@@ -6,22 +6,27 @@ from opencl.cl_mem import MemoryObject
 
 from inspect import isfunction
 from opencl.type_formats import refrence, ctype_from_format, type_format, cdefn
-from cpython cimport PyObject, PyArg_VaParseTupleAndKeywords
-from libc.stdlib cimport malloc, free
 from _cl cimport * 
-from opencl.cl_mem cimport CyMemoryObject_GetID, CyMemoryObject_Check
 from opencl.cl_mem import mem_layout
-from opencl.copencl cimport CyProgram_Create
+
+from libc.stdlib cimport malloc, free
+from opencl.cl_mem cimport CyMemoryObject_GetID, CyMemoryObject_Check
+from cpython cimport PyObject, PyArg_VaParseTupleAndKeywords
+from opencl.copencl cimport CyProgram_Create, CyDevice_Check, CyDevice_GetID
+from opencl.context cimport CyContext_Create
 
 from cpython cimport PyBuffer_FillContiguousStrides
 CData = _ctypes._SimpleCData.__base__
 
 class contextual_memory(object):
-    
+    '''
+    Memory 'type' descriptor.
+    '''
     qualifier = None
     
-    def __init__(self, ctype=None, shape=None):
+    def __init__(self, ctype=None, shape=None, flat=False):
         self.shape = tuple(shape) if shape else shape
+        self.flat = flat
         
         if ctype is None:
             self.format = ctype
@@ -76,6 +81,10 @@ class contextual_memory(object):
         if not CyMemoryObject_Check(arg):
             raise TypeError("from_param expected a MemoryObject")
         
+        if self.format is not None and hasattr(arg, 'format'):
+            if self.format != arg.format:
+                raise TypeError("Expected buffer to be of type %r (got %r)" % (self.format, arg.format))
+            
         cdef void * ptr
         
         if arg.context.devices[0].driver_version == '1.0': #FIXME this should be better #sub-buffer is not supported
@@ -85,6 +94,12 @@ class contextual_memory(object):
 
         ptr = CyMemoryObject_GetID(arg)
         return ctypes.c_void_p(< size_t > ptr)
+    
+    def __repr__(self):
+        if self.shape is None:
+            return '<memory qualifier=%r format=%r>' % (self.qualifier, self.format)
+        else:
+            return '<memory qualifier=%r format=%r shape=%s>' % (self.qualifier, self.format, self.shape)
     
 class global_memory(contextual_memory):
     qualifier = '__global'
@@ -259,6 +274,92 @@ cdef class Kernel:
             
             return CyProgram_Create(program_id)
 
+    property context:
+        def __get__(self):
+            cdef cl_int err_code
+            cdef cl_context context_id
+
+            err_code = clGetKernelInfo(self.kernel_id, CL_KERNEL_CONTEXT, sizeof(cl_context), & context_id, NULL)
+            if err_code != CL_SUCCESS: raise OpenCLException(err_code)
+            
+            return CyContext_Create(context_id)
+
+    def work_group_size(self, device):
+        
+        if not CyDevice_Check(device):
+            raise TypeError("expected argument to be a device")
+        
+        cdef cl_device_id device_id = CyDevice_GetID(device) 
+        cdef cl_int err_code
+        cdef cl_context context_id
+        cdef size_t value
+
+        err_code = clGetKernelWorkGroupInfo(self.kernel_id, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t), & value, NULL)
+        if err_code != CL_SUCCESS: raise OpenCLException(err_code)
+        
+        return value
+
+    def preferred_work_group_size_multiple(self, device):
+        
+        if not CyDevice_Check(device):
+            raise TypeError("expected argument to be a device")
+        
+        cdef cl_device_id device_id = CyDevice_GetID(device) 
+        cdef cl_int err_code
+        cdef cl_context context_id
+        cdef size_t value
+
+        err_code = clGetKernelWorkGroupInfo(self.kernel_id, device_id, CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE, sizeof(size_t), & value, NULL)
+        if err_code != CL_SUCCESS: raise OpenCLException(err_code)
+        
+        return value
+
+    def private_mem_size(self, device):
+        
+        if not CyDevice_Check(device):
+            raise TypeError("expected argument to be a device")
+        
+        cdef cl_device_id device_id = CyDevice_GetID(device) 
+        cdef cl_int err_code
+        cdef cl_context context_id
+        cdef size_t value
+
+        err_code = clGetKernelWorkGroupInfo(self.kernel_id, device_id, CL_KERNEL_PRIVATE_MEM_SIZE, sizeof(size_t), & value, NULL)
+        if err_code != CL_SUCCESS: raise OpenCLException(err_code)
+        
+        return value
+
+    def local_mem_size(self, device):
+        
+        if not CyDevice_Check(device):
+            raise TypeError("expected argument to be a device")
+        
+        cdef cl_device_id device_id = CyDevice_GetID(device) 
+        cdef cl_int err_code
+        cdef cl_context context_id
+        cdef size_t value
+
+        err_code = clGetKernelWorkGroupInfo(self.kernel_id, device_id, CL_KERNEL_LOCAL_MEM_SIZE, sizeof(size_t), & value, NULL)
+        if err_code != CL_SUCCESS: raise OpenCLException(err_code)
+        
+        return value
+
+    def compile_work_group_size(self, device):
+        
+        if not CyDevice_Check(device):
+            raise TypeError("expected argument to be a device")
+        
+        cdef cl_device_id device_id = CyDevice_GetID(device) 
+        cdef cl_int err_code
+        cdef cl_context context_id
+        cdef size_t value[3]
+
+        err_code = clGetKernelWorkGroupInfo(self.kernel_id, device_id, CL_KERNEL_COMPILE_WORK_GROUP_SIZE, sizeof(size_t) * 3, < void *> value, NULL)
+        if err_code != CL_SUCCESS: raise OpenCLException(err_code)
+        
+        return (value[0], value[1], value[2])
+
+
     property name:
         def __get__(self):
             cdef cl_int err_code
@@ -302,9 +403,14 @@ cdef class Kernel:
             if isinstance(arg, local_memory):
                 arg_size = arg.nbytes
                 arg_value = NULL
-                
             else:
-                carg = argtype.from_param(arg)
+                try:
+                    carg = argtype.from_param(arg)
+                except TypeError:
+                    if self._argnames is None:
+                        raise TypeError("argument at pos %i expected type to be %r (got %r)" % (arg_index, argtype, arg))
+                    else:
+                        raise TypeError("argument %r (pos %i) expected type to be %r (got %r)" % (argnames[arg_index], arg_index, argtype, arg))
                 
                 if not isinstance(carg, CData):
                     carg = argtype(arg)

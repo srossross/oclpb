@@ -106,7 +106,11 @@ cdef class Platform:
         def __get__(self):
             return self.get_info(CL_PLATFORM_EXTENSIONS)
 
-    def  devices(self, cl_device_type dtype=CL_DEVICE_TYPE_ALL):
+    property devices:
+        def __get__(self):
+            return self.get_devices()
+
+    def  get_devices(self, cl_device_type dtype=CL_DEVICE_TYPE_ALL):
 
         cdef cl_int err_code
            
@@ -131,6 +135,20 @@ cdef class Platform:
         
         return devices
         
+    
+    def __hash__(self):
+        return < size_t > self.platform_id
+
+    def __richcmp__(Platform self, other, op):
+        
+        if not isinstance(other, Platform):
+            return NotImplemented
+        
+        if op == 2:
+            return self.platform_id == CyPlatform_GetID(other)
+        else:
+            return NotImplemented
+
 cdef class Device:
     DEFAULT = CL_DEVICE_TYPE_DEFAULT
     ALL = CL_DEVICE_TYPE_ALL
@@ -161,6 +179,17 @@ cdef class Device:
         else:
             return NotImplemented
             
+    property platform:
+        def __get__(self):
+            cdef cl_int err_code
+            cdef cl_platform_id plat_id
+            err_code = clGetDeviceInfo(self.device_id, CL_DEVICE_PLATFORM, sizeof(cl_platform_id), < void *>& plat_id, NULL)
+                
+            if err_code != CL_SUCCESS:
+                raise OpenCLException(err_code)
+            
+            return CyPlatform_Create(plat_id)
+        
     property type:
         def __get__(self):
             cdef cl_int err_code
@@ -830,7 +859,7 @@ cdef class Program:
             devices = []
             
             for i in range(num_devices):
-                devices.append(DeviceIDAsPyDevice(device_list[i]))
+                devices.append(CyDevice_Create(device_list[i]))
                 
             free(device_list)
             
@@ -843,11 +872,11 @@ cdef class Program:
 # 
 #===============================================================================
 
-cdef api cl_platform_id clPlatformFromPyPlatform(object py_platform):
+cdef api cl_platform_id CyPlatform_GetID(object py_platform):
     cdef Platform platform = < Platform > py_platform
     return platform.platform_id
 
-cdef api object clPlatformAs_PyPlatform(cl_platform_id platform_id):
+cdef api object CyPlatform_Create(cl_platform_id platform_id):
     cdef Platform platform = < Platform > Platform.__new__(Platform)
     platform.platform_id = platform_id
     return platform
@@ -863,7 +892,7 @@ cdef api cl_device_id CyDevice_GetID(object py_device):
     cdef Device device = < Device > py_device
     return device.device_id
 
-cdef api object DeviceIDAsPyDevice(cl_device_id device_id):
+cdef api object CyDevice_Create(cl_device_id device_id):
     cdef Device device = < Device > Device.__new__(Device)
     device.device_id = device_id
     return device

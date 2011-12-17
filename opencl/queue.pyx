@@ -7,7 +7,7 @@ from cpython cimport PyObject, Py_DECREF, Py_INCREF, PyBuffer_IsContiguous, PyBu
 from libc.stdlib cimport malloc, free 
 from cpython cimport Py_buffer, PyBUF_SIMPLE, PyBUF_STRIDES, PyBUF_ND, PyBUF_FORMAT, PyBUF_INDIRECT, PyBUF_WRITABLE
 
-from opencl.copencl cimport CyDevice_GetID, DeviceIDAsPyDevice, PyEvent_New, cl_eventFrom_PyEvent, PyEvent_Check 
+from opencl.copencl cimport CyDevice_GetID, CyDevice_Create, PyEvent_New, cl_eventFrom_PyEvent, PyEvent_Check 
 from opencl.context cimport CyContext_GetID, CyContext_Create, CyContext_Check
 from opencl.kernel cimport KernelFromPyKernel
 from opencl.cl_mem cimport CyMemoryObject_GetID, CyMemoryObject_Check, CyView_GetPyBuffer
@@ -32,7 +32,7 @@ cdef class UserData:
     cdef object function
     cdef object args
     cdef object kwargs
-    cdef void** args_mem_loc
+    cdef void ** args_mem_loc
      
      
 cdef void user_func(UserData user_data) with gil:
@@ -186,7 +186,7 @@ cdef class Queue:
             if err_code != CL_SUCCESS:
                 raise OpenCLException(err_code)
             
-            return DeviceIDAsPyDevice(device_id) 
+            return CyDevice_Create(device_id) 
 
     property context:
         '''
@@ -528,7 +528,7 @@ cdef class Queue:
         return PyEvent_New(event_id)
     
     
-    def enqueue_task(self, kernel,  wait_on=()):
+    def enqueue_task(self, kernel, wait_on=()):
         '''queue.enqueue_task(kernel,  wait_on=())
         
         Enqueues a command to execute a kernel on a device.  The kernel is executed using a single 
@@ -581,10 +581,16 @@ cdef class Queue:
         cdef size_t * goffset = NULL
         cdef size_t * lsize = NULL
         if global_work_offset:
+            if len(global_work_offset) != len(global_work_size):
+                raise TypeError('dimentionality of global_work_offset (%r dims) does not match global_work_size (%r dims)' % (len(global_work_offset), len(global_work_size)))
             goffset = < size_t *> malloc(sizeof(size_t) * work_dim)
         if local_work_size:
+            if len(local_work_size) != len(global_work_size):
+                free(goffset)
+                raise TypeError('dimentionality of local_work_size (%r dims) does not match global_work_size (%r dims)' % (len(local_work_size), len(global_work_size)))
+                
             lsize = < size_t *> malloc(sizeof(size_t) * work_dim)
-         
+        
         for i in range(work_dim):
             gsize[i] = < size_t > global_work_size[i]
             if goffset != NULL: goffset[i] = < size_t > global_work_offset[i]
@@ -603,6 +609,24 @@ cdef class Queue:
         if lsize != NULL: free(lsize)
 
         if err_code != CL_SUCCESS:
+            if err_code == CL_INVALID_WORK_GROUP_SIZE:
+
+                if any([(x % y) != 0 for x, y in zip(global_work_size, local_work_size)]):
+                    msg = 'local work size %s does not divide global_work_size %r evenly' % (local_work_size, global_work_size)
+                    raise OpenCLException(err_code, msg=msg)
+                
+                work_group_size = kernel.work_group_size(self.device)
+
+                if work_group_size < reduce(lambda x, y: x * y, local_work_size):
+                    ps = '*'.join([str(x) for x in local_work_size])
+                    msg = 'total workgroup size (%s) excceds maximum defined by "kernel.work_group_size(queue.device)" of %r' % (ps, work_group_size)
+                    raise OpenCLException(err_code, msg=msg)
+                
+                if any([x > y for x, y in zip(local_work_size, self.device.max_work_item_sizes)]):
+                    msg = 'an item in local work size (%s) excceds maximum defined "device.max_work_item_sizes" %r' % (local_work_size, self.device.max_work_item_sizes)
+                    raise OpenCLException(err_code, msg=msg)
+
+                    
             raise OpenCLException(err_code, nd_range_kernel_errors)
         
         return PyEvent_New(event_id)

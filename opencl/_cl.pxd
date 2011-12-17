@@ -66,12 +66,16 @@ cdef extern from "OpenCL/cl.h":
         CL_PLATFORM_VENDOR
         CL_PLATFORM_EXTENSIONS
         
-    enum cl_device_type:
-        CL_DEVICE_TYPE_CPU
-        CL_DEVICE_TYPE_GPU
-        CL_DEVICE_TYPE_ACCELERATOR
-        CL_DEVICE_TYPE_DEFAULT
-        CL_DEVICE_TYPE_ALL
+    ctypedef cl_ulong cl_bitfield
+
+    ctypedef cl_bitfield cl_device_type
+
+    cdef cl_device_type \
+        CL_DEVICE_TYPE_CPU,\
+        CL_DEVICE_TYPE_GPU,\
+        CL_DEVICE_TYPE_ACCELERATOR,\
+        CL_DEVICE_TYPE_DEFAULT,\
+        CL_DEVICE_TYPE_ALL,\
         
     enum cl_mem_flags:
         CL_MEM_READ_WRITE
@@ -122,6 +126,7 @@ cdef extern from "OpenCL/cl.h":
         CL_DEVICE_EXTENSIONS
         
         CL_DEVICE_QUEUE_PROPERTIES
+        CL_DEVICE_PLATFORM
 
     
         
@@ -186,6 +191,14 @@ cdef extern from "OpenCL/cl.h":
         CL_KERNEL_REFERENCE_COUNT
         CL_KERNEL_CONTEXT
         CL_KERNEL_PROGRAM
+        
+    ctypedef enum cl_kernel_work_group_info:
+        CL_KERNEL_WORK_GROUP_SIZE
+        CL_KERNEL_COMPILE_WORK_GROUP_SIZE
+        CL_KERNEL_LOCAL_MEM_SIZE
+        CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE
+        CL_KERNEL_PRIVATE_MEM_SIZE
+
         
     enum cl_program_buid_info:
         CL_PROGRAM_BUILD_STATUS
@@ -283,10 +296,6 @@ cdef extern from "OpenCL/cl.h":
     ctypedef _cl_sampler *cl_sampler
 
     ctypedef cl_uint cl_bool
-
-    ctypedef cl_ulong cl_bitfield
-
-    ctypedef cl_bitfield cl_device_type
 
     ctypedef cl_uint cl_platform_info
 
