@@ -8,6 +8,7 @@
 .pydevprojectbuild
 .settings
 build
+_build
 
 copencl.c
 kernel.c
@@ -17,3 +18,4 @@ context.c
 errors.c
 queue.c
 clgl.c
+cl_types.c
