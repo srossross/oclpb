@@ -39,7 +39,7 @@ class Test(unittest.TestCase):
 
     def test_get_devices(self):
         plat = get_platforms()[0]
-        devices = plat.devices()
+        devices = plat.devices
         native_kernels = [dev.has_native_kernel for dev in devices]
 
     def test_enqueue_native_kernel_refcount(self):
@@ -466,7 +466,7 @@ class TestBuffer(unittest.TestCase):
         self.assertEqual(clbuf._refcount, 2)
         
         event = PyEvent()
-        def callback():
+        def callback(mem):
             event.set()
             
         new_buf.add_destructor_callback(callback)

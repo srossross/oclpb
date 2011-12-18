@@ -136,7 +136,7 @@ cdef class Queue:
     
     :param context: An opencl.Context object 
     :param device: if None use the first device in the context [default None] 
-    :param, out_of_order_exec_mode: enable out_of_order_exec_mode [default False] 
+    :param out_of_order_exec_mode: enable out_of_order_exec_mode [default False] 
     :param profiling: enable profiling [default False]
     '''
     cdef cl_command_queue queue_id
@@ -479,13 +479,14 @@ cdef class Queue:
 #        return event
     
     def enqueue_native_kernel(self, function, *args, **kwargs):
-        '''queue.enqueue_native_kernel(function, *args, **kwargs)
+        '''
+        queue.enqueue_native_kernel(function [, arg, ..., kwarg=, ...])
         
         Enqueues a command to execute a python function.
         
-        :param function: a callable python object
-        :param args: arguments for function
-        :param kwargs: keywords for function
+        :param function: A callable python object
+        :param args: Arguments for function
+        :param kwargs: Keywords for function
         
         '''
         cdef UserData user_data = UserData() 

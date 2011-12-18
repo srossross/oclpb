@@ -36,7 +36,8 @@ cdef void pfn_notify_destroy_mem_object(cl_mem memobj, void * user_data) with gi
     '''
     cdef object callback = (< object > user_data)
     
-    callback()
+    mem = CyMemoryObject_Create(memobj)
+    callback(mem)
     
     Py_DECREF(callback)
 
@@ -69,14 +70,20 @@ cdef class MemoryObject:
     
     def add_destructor_callback(self, callback):
         '''
+        memobj.add_destructor_callback(callback)
+        
         Registers a user callback function with a memory object.  Each call to 
-        clSetMemObjectDestructorCallback registers the specified user callback function on a 
-        callback stack associated with memobj.  The registered user callback functions are called in the 
+        `add_destructor_callback` registers the specified user callback function on a 
+        callback stack associated with memobj.  
+        
+        The registered user callback functions are called in the 
         reverse order in which they were registered.  The user callback functions are called and then the 
         memory object's resources are freed and the memory object is deleted.  This provides a 
         mechanism for the application (and libraries) using memobj to be notified when the memory 
         referenced by host_ptr, specified when the memory object is created and used as the storage bits 
         for the memory object, can be reused or freed.
+        
+        :param callback: function with the signature callback(memobj) 
         '''
         Py_INCREF(callback)
         
@@ -292,6 +299,8 @@ cdef class DeviceMemoryView(MemoryObject):
         
     def map(self, queue, blocking=True, readable=True, writeable=True):
         '''
+        DeviceMemoryView.map(queue, blocking=True, readable=True, writeable=True)
+        
         enqueues a command to map a region of the buffer object given by buffer into the host address 
         space and returns a pointer to this mapped region.
         '''
@@ -309,6 +318,8 @@ cdef class DeviceMemoryView(MemoryObject):
     @classmethod
     def from_host(cls, context, host, copy=True, readable=True, writeable=True):
         '''
+        DeviceMemoryView.from_host(context, host, copy=True, readable=True, writeable=True)
+        
         Create an OpenCL buffer from a Python memoryview object.
         '''
         if not CyContext_Check(context):
@@ -1163,7 +1174,9 @@ def broadcast(DeviceMemoryView view, shape):
     return CyView_Create(memobj, result_buffer, 1)
     
 def empty_image(context, shape, image_format):
-    
+    '''
+    Create an image object.
+    '''
     if not CyContext_Check(context):
         raise TypeError("argument 'context' must be a valid opencl.Context object")
     
@@ -1334,5 +1347,4 @@ cdef api object CyImage_New(cl_mem buffer_id):
     
     image.buffer = buffer
     return image
-
 

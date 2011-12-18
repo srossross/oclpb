@@ -88,6 +88,9 @@ completed.
 
 
 class OpenCLException(Exception):
+    '''
+    Base opencl exception object.
+    '''
     def __init__(self, err_code, mapping=None, msg=None):
         if mapping is None:
             mapping = OpenCLErrorStrings

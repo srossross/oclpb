@@ -7,9 +7,12 @@ Welcome to OpenCL's Python documentation!
 =========================================
 
 Contents:
++++++++++++
 
 .. toctree::
    :maxdepth: 2
+
+   api
 
 Indices and tables
 ==================

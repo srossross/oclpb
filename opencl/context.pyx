@@ -171,10 +171,12 @@ cdef class Context:
         return '<opencl.Context num_devices=%i>' % (self.num_devices)
     
     property ref_count:
+        'return opencl internal refrence count of this object'
         def __get__(self):
             pass
         
     property num_devices:
+        'return the number of devices'
         def __get__(self):
             
             cdef cl_int err_code
@@ -186,6 +188,7 @@ cdef class Context:
             return num_devices
             
     property properties:
+        'return a ContextProperties object'
         def __get__(self):
             properties = ContextProperties()
             
@@ -224,6 +227,8 @@ cdef class Context:
             
         
     property devices:
+        'return a list of devices associated with this context'
+        
         def __get__(self):
             
             cdef cl_int err_code

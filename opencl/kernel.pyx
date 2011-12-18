@@ -75,9 +75,17 @@ class contextual_memory(object):
         return '%s %s' % (self.qualifier, cdefn(refrence(self.format)))
     
     def derefrence(self):
+        '''
+        Return the type that this object is a pointer to.
+        '''
         return self.ctype
     
     def from_param(self, arg):
+        '''
+        Return a ctypes.c_void_p from arg. 
+        
+        :param arg: must be a MemoryObject.
+        '''
         if not CyMemoryObject_Check(arg):
             raise TypeError("from_param expected a MemoryObject")
         
@@ -158,6 +166,8 @@ set_kerne_arg_errors = {
 class _Undefined: pass
 
 def call_with_used_args(func, argnames, arglist):
+    '''
+    '''
     func_args = func.func_code.co_varnames[:func.func_code.co_argcount]
     
     if argnames is None:
@@ -169,7 +179,11 @@ def call_with_used_args(func, argnames, arglist):
     return result
     
 def parse_args(name, args, kwargs, argnames, defaults):
+    '''
+    parse_args(name, args, kwargs, argnames, defaults) -> list
     
+    similar to python's c api parse args. 
+    '''
     narg_names = len(argnames)
     nargs = len(args)
     
@@ -210,6 +224,9 @@ def parse_args(name, args, kwargs, argnames, defaults):
     return tuple(result)
 
 cdef class Kernel:
+    '''
+    openCl kernel object.
+    '''
     cdef cl_kernel kernel_id
     cdef object _argtypes 
     cdef object _argnames 
