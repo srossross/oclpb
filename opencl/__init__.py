@@ -11,3 +11,5 @@ from .errors import OpenCLException
 
 from_host = DeviceMemoryView.from_host
 import clgl as gl
+
+from .cl_types import *

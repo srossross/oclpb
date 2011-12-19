@@ -200,10 +200,20 @@ cdef extern from "OpenCL/cl.h":
         CL_KERNEL_PRIVATE_MEM_SIZE
 
         
-    enum cl_program_buid_info:
+    ctypedef enum cl_program_buid_info:
         CL_PROGRAM_BUILD_STATUS
         CL_PROGRAM_BUILD_OPTIONS
         CL_PROGRAM_BUILD_LOG
+
+    
+    ctypedef cl_int cl_build_status
+    
+    cdef cl_build_status CL_BUILD_NONE ,\
+        CL_BUILD_ERROR ,\
+        CL_BUILD_SUCCESS ,\
+        CL_BUILD_IN_PROGRESS
+        
+    
     
     enum cl_event_info:
         CL_EVENT_COMMAND_EXECUTION_STATUS
@@ -343,8 +353,6 @@ cdef extern from "OpenCL/cl.h":
     ctypedef cl_uint cl_program_info
 
     ctypedef cl_uint cl_program_build_info
-
-    ctypedef cl_int cl_build_status
 
     ctypedef cl_uint cl_kernel_work_group_info
 

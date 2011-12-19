@@ -302,7 +302,6 @@ def enqueue_acquire_gl_objects(queue, *mem_objects, wait_on=()):
     if event_wait_list == < cl_event *> 1:
         raise Exception("One of the items in argument 'wait_on' is not a valid event")
 
-    print "mem_objects", mem_objects
     if len(mem_objects) == 1:
         if isinstance(mem_objects[0], (list, tuple)):
             mem_objects = mem_objects[0]

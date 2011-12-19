@@ -38,7 +38,6 @@ def main():
             print "     | driver_version", device.driver_version
             print "     | device_profile", device.profile
             print "     | version", device.version
-#            print "     | extensions", device.extensions
             print 
 
 

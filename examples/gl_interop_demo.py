@@ -7,34 +7,42 @@ Created on Dec 8, 2011
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 import opencl as cl
-from ctypes import c_float
-from clyther.types import float2
-import clyther as cly
-import clyther.runtime as clrt
 import numpy as np
 
 
-@cly.global_work_size(lambda a: [a.size])
-@cly.kernel
-def generate_sin(a):
-    gid = clrt.get_global_id(0)
-    n = clrt.get_global_size(0)
-    r = c_float(gid) / c_float(n)
+generate_sin_source = '''
+#line 14 "gl_interop_demo.py"
+__kernel void generate_sin(__global float2* a) {
+    uint gid = get_global_id(0);
+    uint n = get_global_size(0);
+    float r = (float)gid / (float)n;
     
-    x = r * c_float(16.0) * c_float(3.1415)
+    float x = r * 16.0f * 3.1415f;
     
-    a[gid].x = c_float(r * 2.0) - c_float(1.0)
-    a[gid].y = clrt.native_sin(x)
+    a[gid].x = r * 2.0f - 1.0f;
+    a[gid].y = native_sin(x);
+}
+'''
 
 n_vertices = 100
 coords_dev = None
 
+generate_sin = None
+ 
 def initialize():
-    global coords_dev, n_vertices
+    global generate_sin, coords_dev, n_vertices
     
     ctx = cl.gl.context()
 
-    coords_dev = cl.gl.empty_gl(ctx, [n_vertices], ctype=float2)
+    if generate_sin is None:
+        program = cl.Program(ctx, generate_sin_source).build()
+        generate_sin = program.generate_sin
+        
+        generate_sin.argnames = 'a',
+        generate_sin.argtypes = cl.global_memory(cl.cl_float2),
+        generate_sin.global_work_size = lambda a: a.shape
+    
+    coords_dev = cl.gl.empty_gl(ctx, [n_vertices], ctype=cl.cl_float2)
     
     glClearColor(1, 1, 1, 1)
     glColor(0, 0, 1)
@@ -65,7 +73,7 @@ def reshape(w, h):
     glLoadIdentity()
     glMatrixMode(GL_MODELVIEW)
 
-if __name__ == '__main__':
+def main():
     import sys
     glutInit(sys.argv)
     if len(sys.argv) > 1:
@@ -77,3 +85,6 @@ if __name__ == '__main__':
     glutReshapeFunc(reshape)
     initialize()
     glutMainLoop()
+    
+if __name__ == '__main__':
+    main()

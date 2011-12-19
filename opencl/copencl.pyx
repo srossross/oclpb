@@ -5,7 +5,7 @@ import weakref
 import struct
 import ctypes
 from opencl.type_formats import refrence, ctype_from_format, type_format, cdefn
-from opencl.errors import OpenCLException
+from opencl.errors import OpenCLException, BuildError
 
 from libc.stdlib cimport malloc, free 
 from libc.stdio cimport printf
@@ -745,7 +745,7 @@ cdef class Program:
             
             
             
-    def build(self, devices=None, options=''):
+    def build(self, devices=None, options='', do_raise=True):
         
         cdef cl_int err_code
         cdef char * _options = options
@@ -757,6 +757,14 @@ cdef class Program:
         if err_code != CL_SUCCESS:
             raise OpenCLException(err_code)
 
+        cdef cl_build_status bld_status
+        cdef size_t bld_status_
+        if do_raise:
+            for device, status in self.status.items():
+                bld_status_ = <size_t> status
+                bld_status = <cl_build_status> bld_status_
+                if bld_status != CL_BUILD_SUCCESS:
+                    raise BuildError(self.logs[device], self.logs)
         return self
     
     property num_devices:
@@ -867,6 +875,29 @@ cdef class Program:
             free(binaries)
                 
             return dict(zip(self.devices, py_binaries))
+            
+            
+    property status:
+        def __get__(self):
+            
+            statuses = []
+            cdef cl_build_status status
+            cdef cl_int err_code
+            cdef cl_device_id device_id
+            
+            for device in self.devices:
+                
+                device_id = (< Device > device).device_id
+
+                err_code = clGetProgramBuildInfo(self.program_id, device_id, CL_PROGRAM_BUILD_STATUS, sizeof(cl_build_status), &status, NULL)
+                 
+                if err_code != CL_SUCCESS: 
+                    raise OpenCLException(err_code)
+                
+                statuses.append(<size_t> status)
+                
+            return dict(zip(self.devices, statuses))
+                
             
     property logs:
         def __get__(self):
