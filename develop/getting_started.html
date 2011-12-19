@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>C - api &mdash; Clyther v1.0.0 documentation</title>
+    <title>Getting Started &mdash; Clyther v1.0.0 documentation</title>
     <link rel="stylesheet" href="static/default.css" type="text/css" />
     <link rel="stylesheet" href="static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -23,8 +23,8 @@
     <script type="text/javascript" src="static/underscore.js"></script>
     <script type="text/javascript" src="static/doctools.js"></script>
     <link rel="top" title="Clyther v1.0.0 documentation" href="index.html" />
-    <link rel="next" title="OpenCL for Python API" href="capi.html" />
-    <link rel="prev" title="Getting Started" href="getting_started.html" /> 
+    <link rel="next" title="C - api" href="api.html" />
+    <link rel="prev" title="Welcome to OpenCL’s Python documentation!" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -37,10 +37,10 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="capi.html" title="OpenCL for Python API"
+          <a href="api.html" title="C - api"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="getting_started.html" title="Getting Started"
+          <a href="index.html" title="Welcome to OpenCL’s Python documentation!"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">Clyther v1.0.0 documentation</a> &raquo;</li> 
       </ul>
@@ -51,11 +51,37 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="c-api">
-<h1>C - api<a class="headerlink" href="#c-api" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="calling-opencl-for-python-s-c-interface">
-<h2>Calling OpenCL for Python&#8217;s C interface<a class="headerlink" href="#calling-opencl-for-python-s-c-interface" title="Permalink to this headline">¶</a></h2>
-<p>This section describes how to extend this Python library with native C functions.</p>
+  <div class="section" id="getting-started">
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="easy-install">
+<h2>easy_install<a class="headerlink" href="#easy-install" title="Permalink to this headline">¶</a></h2>
+<p>you can just run:</p>
+<div class="highlight-python"><pre>sudo easy_install oclpb</pre>
+</div>
+</div>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>Only OpenCL!</p>
+</div>
+<div class="section" id="download">
+<h2>Download<a class="headerlink" href="#download" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><cite>Download from stable version from PyPi &lt;http://pypi.python.org/pypi/oclpb&gt;_</cite></li>
+<li><cite>Or Download the latest from GitHub &lt;https://github.com/srossross/oclpb/tags&gt;_</cite></li>
+</ul>
+</div>
+<div class="section" id="build">
+<h2>Build<a class="headerlink" href="#build" title="Permalink to this headline">¶</a></h2>
+<p>run:</p>
+<div class="highlight-python"><pre>python setup.py build
+python setup.py install [ --prefix=$SOMPATH ]</pre>
+</div>
+</div>
+<div class="section" id="test">
+<h2>Test<a class="headerlink" href="#test" title="Permalink to this headline">¶</a></h2>
+<p>run:</p>
+<div class="highlight-python"><pre>python -m unittest discover opencl/</pre>
+</div>
 </div>
 </div>
 
@@ -67,21 +93,25 @@
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">C - api</a><ul>
-<li><a class="reference internal" href="#calling-opencl-for-python-s-c-interface">Calling OpenCL for Python&#8217;s C interface</a></li>
+<li><a class="reference internal" href="#">Getting Started</a><ul>
+<li><a class="reference internal" href="#easy-install">easy_install</a></li>
+<li><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li><a class="reference internal" href="#download">Download</a></li>
+<li><a class="reference internal" href="#build">Build</a></li>
+<li><a class="reference internal" href="#test">Test</a></li>
 </ul>
 </li>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="getting_started.html"
-                        title="previous chapter">Getting Started</a></p>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to OpenCL&#8217;s Python documentation!</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="capi.html"
-                        title="next chapter">OpenCL for Python API</a></p>
+  <p class="topless"><a href="api.html"
+                        title="next chapter">C - api</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
-    <li><a href="sources/api.txt"
+    <li><a href="sources/getting_started.txt"
            rel="nofollow">Show Source</a></li>
   </ul>
 <div id="searchbox" style="display: none">
@@ -111,10 +141,10 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="capi.html" title="OpenCL for Python API"
+          <a href="api.html" title="C - api"
              >next</a> |</li>
         <li class="right" >
-          <a href="getting_started.html" title="Getting Started"
+          <a href="index.html" title="Welcome to OpenCL’s Python documentation!"
              >previous</a> |</li>
         <li><a href="index.html">Clyther v1.0.0 documentation</a> &raquo;</li> 
       </ul>
