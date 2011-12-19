@@ -20,6 +20,8 @@ Links:
 * `Github <https://github.com/srossross/oclpb/>`_
 * `OpenCL 1.1 spec <http://www.khronos.org/registry/cl/specs/opencl-1.0.29.pdf>`_
 
+* Also please check out `CLyther <http://srossross.github.com/Clyther>`_
+
 Contributing
 ++++++++++++++++
 * Author Email: srossross@enthought.com
