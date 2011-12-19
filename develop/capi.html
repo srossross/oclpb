@@ -1,0 +1,1221 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>OpenCL for Python API &mdash; Clyther v1.0.0 documentation</title>
+    <link rel="stylesheet" href="static/default.css" type="text/css" />
+    <link rel="stylesheet" href="static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="static/jquery.js"></script>
+    <script type="text/javascript" src="static/underscore.js"></script>
+    <script type="text/javascript" src="static/doctools.js"></script>
+    <link rel="top" title="Clyther v1.0.0 documentation" href="index.html" />
+    <link rel="next" title="BSD Licence Aggreement" href="license.html" />
+    <link rel="prev" title="CAPI" href="api.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="license.html" title="BSD Licence Aggreement"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="CAPI"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Clyther v1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-opencl">
+<span id="opencl-for-python-api"></span><h1>OpenCL for Python API<a class="headerlink" href="#module-opencl" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="opencl-platform">
+<h2>opencl.Platform<a class="headerlink" href="#opencl-platform" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="opencl.Platform">
+<em class="property">class </em><tt class="descclassname">opencl.</tt><tt class="descname">Platform</tt><a class="headerlink" href="#opencl.Platform" title="Permalink to this definition">¶</a></dt>
+<dd><p>opencl.Platform not constructable</p>
+<p>use  opencl.get_platforms() to get a list of</p>
+<dl class="attribute">
+<dt id="opencl.Platform.devices">
+<tt class="descname">devices</tt><a class="headerlink" href="#opencl.Platform.devices" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of all devices attached to this platform</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Platform.extensions">
+<tt class="descname">extensions</tt><a class="headerlink" href="#opencl.Platform.extensions" title="Permalink to this definition">¶</a></dt>
+<dd><p>platform extensions as a string</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Platform.get_devices">
+<tt class="descname">get_devices</tt><a class="headerlink" href="#opencl.Platform.get_devices" title="Permalink to this definition">¶</a></dt>
+<dd><p>plat.get_devices(device_type=opencl.Device.ALL)</p>
+<p>return a list of devices by type.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Platform.name">
+<tt class="descname">name</tt><a class="headerlink" href="#opencl.Platform.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>platform name</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Platform.profile">
+<tt class="descname">profile</tt><a class="headerlink" href="#opencl.Platform.profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>return the plafrom profile info</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Platform.vendor">
+<tt class="descname">vendor</tt><a class="headerlink" href="#opencl.Platform.vendor" title="Permalink to this definition">¶</a></dt>
+<dd><p>platform vendor</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Platform.version">
+<tt class="descname">version</tt><a class="headerlink" href="#opencl.Platform.version" title="Permalink to this definition">¶</a></dt>
+<dd><p>return the version string of the platform</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="opencl-device">
+<h2>opencl.Device<a class="headerlink" href="#opencl-device" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="opencl.Device">
+<em class="property">class </em><tt class="descclassname">opencl.</tt><tt class="descname">Device</tt><a class="headerlink" href="#opencl.Device" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="data">
+<dt id="opencl.Device.DEFAULT">
+<tt class="descname">DEFAULT</tt><a class="headerlink" href="#opencl.Device.DEFAULT" title="Permalink to this definition">¶</a></dt>
+<dd><p>device type default.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.address_bits">
+<tt class="descname">address_bits</tt><a class="headerlink" href="#opencl.Device.address_bits" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.available">
+<tt class="descname">available</tt><a class="headerlink" href="#opencl.Device.available" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.compiler_available">
+<tt class="descname">compiler_available</tt><a class="headerlink" href="#opencl.Device.compiler_available" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.driver_version">
+<tt class="descname">driver_version</tt><a class="headerlink" href="#opencl.Device.driver_version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.extensions">
+<tt class="descname">extensions</tt><a class="headerlink" href="#opencl.Device.extensions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.global_mem_size">
+<tt class="descname">global_mem_size</tt><a class="headerlink" href="#opencl.Device.global_mem_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.has_image_support">
+<tt class="descname">has_image_support</tt><a class="headerlink" href="#opencl.Device.has_image_support" title="Permalink to this definition">¶</a></dt>
+<dd><p>test if this device supports the openc.Image class</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.has_local_mem">
+<tt class="descname">has_local_mem</tt><a class="headerlink" href="#opencl.Device.has_local_mem" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.has_native_kernel">
+<tt class="descname">has_native_kernel</tt><a class="headerlink" href="#opencl.Device.has_native_kernel" title="Permalink to this definition">¶</a></dt>
+<dd><p>test if this device supports native python kernels</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.has_queue_out_of_order_exec_mode">
+<tt class="descname">has_queue_out_of_order_exec_mode</tt><a class="headerlink" href="#opencl.Device.has_queue_out_of_order_exec_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>test if this device supports out_of_order_exec_mode for queues</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.has_queue_profiling">
+<tt class="descname">has_queue_profiling</tt><a class="headerlink" href="#opencl.Device.has_queue_profiling" title="Permalink to this definition">¶</a></dt>
+<dd><p>test if this device supports profiling for queues</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.host_unified_memory">
+<tt class="descname">host_unified_memory</tt><a class="headerlink" href="#opencl.Device.host_unified_memory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.local_mem_size">
+<tt class="descname">local_mem_size</tt><a class="headerlink" href="#opencl.Device.local_mem_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.max_clock_frequency">
+<tt class="descname">max_clock_frequency</tt><a class="headerlink" href="#opencl.Device.max_clock_frequency" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.max_compute_units">
+<tt class="descname">max_compute_units</tt><a class="headerlink" href="#opencl.Device.max_compute_units" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of parallel compute cores on the OpenCL device.  
+The minimum value is 1.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.max_const_buffer_size">
+<tt class="descname">max_const_buffer_size</tt><a class="headerlink" href="#opencl.Device.max_const_buffer_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.max_image2d_shape">
+<tt class="descname">max_image2d_shape</tt><a class="headerlink" href="#opencl.Device.max_image2d_shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.max_image3d_shape">
+<tt class="descname">max_image3d_shape</tt><a class="headerlink" href="#opencl.Device.max_image3d_shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.max_mem_alloc_size">
+<tt class="descname">max_mem_alloc_size</tt><a class="headerlink" href="#opencl.Device.max_mem_alloc_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.max_parameter_size">
+<tt class="descname">max_parameter_size</tt><a class="headerlink" href="#opencl.Device.max_parameter_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.max_read_image_args">
+<tt class="descname">max_read_image_args</tt><a class="headerlink" href="#opencl.Device.max_read_image_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.max_work_group_size">
+<tt class="descname">max_work_group_size</tt><a class="headerlink" href="#opencl.Device.max_work_group_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.max_work_item_dimensions">
+<tt class="descname">max_work_item_dimensions</tt><a class="headerlink" href="#opencl.Device.max_work_item_dimensions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maximum dimensions that specify the  global and local work-item IDs used 
+by the data parallel execution model. (Refer to clEnqueueNDRangeKernel).</p>
+<p>The minimum value is 3.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.max_work_item_sizes">
+<tt class="descname">max_work_item_sizes</tt><a class="headerlink" href="#opencl.Device.max_work_item_sizes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maximum number of work-items that  can be specified in each dimension to  <cite>opencl.Queue.enqueue_nd_range_kernel</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">n entries, where n is the value returned by the query for  <cite>opencl.Device.max_work_item_dimensions</cite></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.max_write_image_args">
+<tt class="descname">max_write_image_args</tt><a class="headerlink" href="#opencl.Device.max_write_image_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.name">
+<tt class="descname">name</tt><a class="headerlink" href="#opencl.Device.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>the name of this device</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.platform">
+<tt class="descname">platform</tt><a class="headerlink" href="#opencl.Device.platform" title="Permalink to this definition">¶</a></dt>
+<dd><p>return the platform this device is associated with.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.profile">
+<tt class="descname">profile</tt><a class="headerlink" href="#opencl.Device.profile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.profiling_timer_resolution">
+<tt class="descname">profiling_timer_resolution</tt><a class="headerlink" href="#opencl.Device.profiling_timer_resolution" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.queue_properties">
+<tt class="descname">queue_properties</tt><a class="headerlink" href="#opencl.Device.queue_properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>return queue properties as a bitfield</p>
+<p>see also <cite>has_queue_out_of_order_exec_mode</cite> and <cite>has_queue_profiling</cite></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.type">
+<tt class="descname">type</tt><a class="headerlink" href="#opencl.Device.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>return device type: one of [Device.DEFAULT, Device.ALL, Device.GPU or Device.CPU]</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.vendor_id">
+<tt class="descname">vendor_id</tt><a class="headerlink" href="#opencl.Device.vendor_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>return the vendor ID</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Device.version">
+<tt class="descname">version</tt><a class="headerlink" href="#opencl.Device.version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="opencl-event">
+<h2>opencl.Event<a class="headerlink" href="#opencl-event" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="opencl.Event">
+<em class="property">class </em><tt class="descclassname">opencl.</tt><tt class="descname">Event</tt><a class="headerlink" href="#opencl.Event" title="Permalink to this definition">¶</a></dt>
+<dd><p>An event object can be used to track the execution status of a command.  The API calls that 
+enqueue commands to a command-queue create a new event object that is returned in the event
+argument.</p>
+<dl class="attribute">
+<dt id="opencl.Event.add_callback">
+<tt class="descname">add_callback</tt><a class="headerlink" href="#opencl.Event.add_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>event.add_callback(callback)
+Registers a user callback function for on completion of the event.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>callback</strong> &#8211; must be of the signature callback(event, status)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Event.status">
+<tt class="descname">status</tt><a class="headerlink" href="#opencl.Event.status" title="Permalink to this definition">¶</a></dt>
+<dd><p>the current status of the event.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Event.wait">
+<tt class="descname">wait</tt><a class="headerlink" href="#opencl.Event.wait" title="Permalink to this definition">¶</a></dt>
+<dd><p>event.wait()</p>
+<p>Waits on the host thread for commands identified by event objects in event_list to complete.  
+A command is considered complete if its execution status is CL_COMPLETE or a negative value.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="opencl-userevent">
+<h2>opencl.UserEvent<a class="headerlink" href="#opencl-userevent" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="opencl.UserEvent">
+<em class="property">class </em><tt class="descclassname">opencl.</tt><tt class="descname">UserEvent</tt><a class="headerlink" href="#opencl.UserEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a user event object.  User events allow applications to enqueue commands that wait on a 
+user event to finish before the command is executed by the device.</p>
+<dl class="attribute">
+<dt id="opencl.UserEvent.complete">
+<tt class="descname">complete</tt><a class="headerlink" href="#opencl.UserEvent.complete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set this event status to complete.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="opencl-program">
+<h2>opencl.Program<a class="headerlink" href="#opencl-program" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="opencl.Program">
+<em class="property">class </em><tt class="descclassname">opencl.</tt><tt class="descname">Program</tt><big>(</big><em>context</em>, <em>source=None</em>, <em>binaries=None</em>, <em>devices=None</em><big>)</big><a class="headerlink" href="#opencl.Program" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an opencl program.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>context</strong> &#8211; opencl.Context object.</li>
+<li><strong>source</strong> &#8211; program source to compile.</li>
+<li><strong>binaries</strong> &#8211; dict of pre-compiled binaries. of the form {device:bytes, ..}</li>
+<li><strong>devices</strong> &#8211; list of devices to compile on.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="opencl.Program.binaries">
+<tt class="descname">binaries</tt><a class="headerlink" href="#opencl.Program.binaries" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Program.binary_sizes">
+<tt class="descname">binary_sizes</tt><a class="headerlink" href="#opencl.Program.binary_sizes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Program.build">
+<tt class="descname">build</tt><a class="headerlink" href="#opencl.Program.build" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Program.context">
+<tt class="descname">context</tt><a class="headerlink" href="#opencl.Program.context" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Program.devices">
+<tt class="descname">devices</tt><a class="headerlink" href="#opencl.Program.devices" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Program.kernel">
+<tt class="descname">kernel</tt><a class="headerlink" href="#opencl.Program.kernel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a kernel object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Program.logs">
+<tt class="descname">logs</tt><a class="headerlink" href="#opencl.Program.logs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Program.num_devices">
+<tt class="descname">num_devices</tt><a class="headerlink" href="#opencl.Program.num_devices" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Program.source">
+<tt class="descname">source</tt><a class="headerlink" href="#opencl.Program.source" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="opencl-memoryobject">
+<h2>opencl.MemoryObject<a class="headerlink" href="#opencl-memoryobject" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="opencl.MemoryObject">
+<em class="property">class </em><tt class="descclassname">opencl.</tt><tt class="descname">MemoryObject</tt><a class="headerlink" href="#opencl.MemoryObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Memory objects are categorized into two types: buffer objects, and image objects.  A buffer
+object stores a one-dimensional collection of elements whereas an image object is used to store a 
+two- or three- dimensional texture, frame-buffer or image.</p>
+<dl class="attribute">
+<dt id="opencl.MemoryObject.add_destructor_callback">
+<tt class="descname">add_destructor_callback</tt><a class="headerlink" href="#opencl.MemoryObject.add_destructor_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>memobj.add_destructor_callback(callback)</p>
+<p>Registers a user callback function with a memory object.  Each call to 
+<cite>add_destructor_callback</cite> registers the specified user callback function on a 
+callback stack associated with memobj.</p>
+<p>The registered user callback functions are called in the 
+reverse order in which they were registered.  The user callback functions are called and then the 
+memory object&#8217;s resources are freed and the memory object is deleted.  This provides a 
+mechanism for the application (and libraries) using memobj to be notified when the memory 
+referenced by host_ptr, specified when the memory object is created and used as the storage bits 
+for the memory object, can be reused or freed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>callback</strong> &#8211; function with the signature callback(memobj)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.MemoryObject.base">
+<tt class="descname">base</tt><a class="headerlink" href="#opencl.MemoryObject.base" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the original memobject if this is a sub-buffer.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.MemoryObject.base_offset">
+<tt class="descname">base_offset</tt><a class="headerlink" href="#opencl.MemoryObject.base_offset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the offset from <cite>base</cite> of this is a subbuffer.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.MemoryObject.context">
+<tt class="descname">context</tt><a class="headerlink" href="#opencl.MemoryObject.context" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the context that this object was created with.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.MemoryObject.get_buffer_id">
+<tt class="descname">get_buffer_id</tt><a class="headerlink" href="#opencl.MemoryObject.get_buffer_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the pointer to the opencl memory object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.MemoryObject.mem_size">
+<tt class="descname">mem_size</tt><a class="headerlink" href="#opencl.MemoryObject.mem_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the size in bytes of this memory object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.MemoryObject.type">
+<tt class="descname">type</tt><a class="headerlink" href="#opencl.MemoryObject.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>return the enumed type of this object. 
+One of MemoryObject.BUFFER, MemoryObject.IMAGE2D or MemoryObject.IMAGE3D</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="opencl-devicememoryview">
+<h2>opencl.DeviceMemoryView<a class="headerlink" href="#opencl-devicememoryview" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="opencl.DeviceMemoryView">
+<em class="property">class </em><tt class="descclassname">opencl.</tt><tt class="descname">DeviceMemoryView</tt><a class="headerlink" href="#opencl.DeviceMemoryView" title="Permalink to this definition">¶</a></dt>
+<dd><p>A buffer object stores a one-dimensional collection of elements.  Elements of a buffer object can 
+be a scalar data type (such as an int, float), vector data type, or a user-defined structure</p>
+<dl class="attribute">
+<dt id="opencl.DeviceMemoryView.array_info">
+<tt class="descname">array_info</tt><a class="headerlink" href="#opencl.DeviceMemoryView.array_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.DeviceMemoryView.copy">
+<tt class="descname">copy</tt><a class="headerlink" href="#opencl.DeviceMemoryView.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy this buffer into a new object</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.DeviceMemoryView.ctype">
+<tt class="descname">ctype</tt><a class="headerlink" href="#opencl.DeviceMemoryView.ctype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.DeviceMemoryView.format">
+<tt class="descname">format</tt><a class="headerlink" href="#opencl.DeviceMemoryView.format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is ctype format of the elements</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="opencl.DeviceMemoryView.from_host">
+<em class="property">static </em><tt class="descname">from_host</tt><big>(</big><big>)</big><a class="headerlink" href="#opencl.DeviceMemoryView.from_host" title="Permalink to this definition">¶</a></dt>
+<dd><p>DeviceMemoryView.from_host(context, host, copy=True, readable=True, writeable=True)</p>
+<p>Create an OpenCL buffer from a Python memoryview object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.DeviceMemoryView.is_contiguous">
+<tt class="descname">is_contiguous</tt><a class="headerlink" href="#opencl.DeviceMemoryView.is_contiguous" title="Permalink to this definition">¶</a></dt>
+<dd><p>is this array C-contiguous</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.DeviceMemoryView.item">
+<tt class="descname">item</tt><a class="headerlink" href="#opencl.DeviceMemoryView.item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a python object if the size of this array is 1.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.DeviceMemoryView.itemsize">
+<tt class="descname">itemsize</tt><a class="headerlink" href="#opencl.DeviceMemoryView.itemsize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is size of each element</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.DeviceMemoryView.map">
+<tt class="descname">map</tt><a class="headerlink" href="#opencl.DeviceMemoryView.map" title="Permalink to this definition">¶</a></dt>
+<dd><p>DeviceMemoryView.map(queue, blocking=True, readable=True, writeable=True)</p>
+<p>enqueues a command to map a region of the buffer object given by buffer into the host address 
+space and returns a pointer to this mapped region.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.DeviceMemoryView.nbytes">
+<tt class="descname">nbytes</tt><a class="headerlink" href="#opencl.DeviceMemoryView.nbytes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Total number of bytes</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.DeviceMemoryView.ndim">
+<tt class="descname">ndim</tt><a class="headerlink" href="#opencl.DeviceMemoryView.ndim" title="Permalink to this definition">¶</a></dt>
+<dd><p>number of dimensions</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.DeviceMemoryView.read">
+<tt class="descname">read</tt><a class="headerlink" href="#opencl.DeviceMemoryView.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>buf.read(queue, out, wait_on=(), blocking=False)</p>
+<p>Read this buffer into a memory view</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.DeviceMemoryView.readonly">
+<tt class="descname">readonly</tt><a class="headerlink" href="#opencl.DeviceMemoryView.readonly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is this memory writable</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.DeviceMemoryView.shape">
+<tt class="descname">shape</tt><a class="headerlink" href="#opencl.DeviceMemoryView.shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shape of the array</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.DeviceMemoryView.size">
+<tt class="descname">size</tt><a class="headerlink" href="#opencl.DeviceMemoryView.size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Total number of elements</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.DeviceMemoryView.strides">
+<tt class="descname">strides</tt><a class="headerlink" href="#opencl.DeviceMemoryView.strides" title="Permalink to this definition">¶</a></dt>
+<dd><p>Strides of the array</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.DeviceMemoryView.write">
+<tt class="descname">write</tt><a class="headerlink" href="#opencl.DeviceMemoryView.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>view.write(queue, buf, wait_on=(), blocking=False)</p>
+<p>Write data from a memoryview to the device.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="opencl-imageformat">
+<h2>opencl.ImageFormat<a class="headerlink" href="#opencl-imageformat" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="opencl.ImageFormat">
+<em class="property">class </em><tt class="descclassname">opencl.</tt><tt class="descname">ImageFormat</tt><a class="headerlink" href="#opencl.ImageFormat" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="opencl.ImageFormat.channel_data_type">
+<tt class="descname">channel_data_type</tt><a class="headerlink" href="#opencl.ImageFormat.channel_data_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.ImageFormat.channel_order">
+<tt class="descname">channel_order</tt><a class="headerlink" href="#opencl.ImageFormat.channel_order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.ImageFormat.ctype">
+<tt class="descname">ctype</tt><a class="headerlink" href="#opencl.ImageFormat.ctype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.ImageFormat.format">
+<tt class="descname">format</tt><a class="headerlink" href="#opencl.ImageFormat.format" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="opencl.ImageFormat.from_ctype">
+<em class="property">static </em><tt class="descname">from_ctype</tt><big>(</big><big>)</big><a class="headerlink" href="#opencl.ImageFormat.from_ctype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="opencl.ImageFormat.supported_formats">
+<em class="property">static </em><tt class="descname">supported_formats</tt><big>(</big><big>)</big><a class="headerlink" href="#opencl.ImageFormat.supported_formats" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="opencl-image">
+<h2>opencl.Image<a class="headerlink" href="#opencl-image" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="opencl.Image">
+<em class="property">class </em><tt class="descclassname">opencl.</tt><tt class="descname">Image</tt><a class="headerlink" href="#opencl.Image" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="opencl.Image.format">
+<tt class="descname">format</tt><a class="headerlink" href="#opencl.Image.format" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Image.image_depth">
+<tt class="descname">image_depth</tt><a class="headerlink" href="#opencl.Image.image_depth" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Image.image_format">
+<tt class="descname">image_format</tt><a class="headerlink" href="#opencl.Image.image_format" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Image.image_height">
+<tt class="descname">image_height</tt><a class="headerlink" href="#opencl.Image.image_height" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Image.image_width">
+<tt class="descname">image_width</tt><a class="headerlink" href="#opencl.Image.image_width" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Image.map">
+<tt class="descname">map</tt><a class="headerlink" href="#opencl.Image.map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Image.shape">
+<tt class="descname">shape</tt><a class="headerlink" href="#opencl.Image.shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Image.strides">
+<tt class="descname">strides</tt><a class="headerlink" href="#opencl.Image.strides" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="opencl-contextproperties">
+<h2>opencl.ContextProperties<a class="headerlink" href="#opencl-contextproperties" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="opencl.ContextProperties">
+<em class="property">class </em><tt class="descclassname">opencl.</tt><tt class="descname">ContextProperties</tt><a class="headerlink" href="#opencl.ContextProperties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Store of key value pairs that can be used to initialize
+an opencl.Context object.</p>
+<dl class="attribute">
+<dt id="opencl.ContextProperties.as_dict">
+<tt class="descname">as_dict</tt><a class="headerlink" href="#opencl.ContextProperties.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.ContextProperties.platform">
+<tt class="descname">platform</tt><a class="headerlink" href="#opencl.ContextProperties.platform" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.ContextProperties.properties_dict">
+<tt class="descname">properties_dict</tt><a class="headerlink" href="#opencl.ContextProperties.properties_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.ContextProperties.set_property">
+<tt class="descname">set_property</tt><a class="headerlink" href="#opencl.ContextProperties.set_property" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="opencl-context">
+<h2>opencl.Context<a class="headerlink" href="#opencl-context" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="opencl.Context">
+<em class="property">class </em><tt class="descclassname">opencl.</tt><tt class="descname">Context</tt><big>(</big><em>devices=()</em>, <em>device_type=cl.Device.DEFAULT</em>, <em>ContextProperties properties=None</em>, <em>callback=None</em><big>)</big><a class="headerlink" href="#opencl.Context" title="Permalink to this definition">¶</a></dt>
+<dd><p>opencl.Context(devices=(), device_type=cl.Device.DEFAULT, ContextProperties properties=None, callback=print_context_error)</p>
+<p>Creates an OpenCL context. An OpenCL context is created with one or more devices.  Contexts 
+are used by the OpenCL runtime for managing objects such as command-queues, memory, 
+program and kernel objects and for executing kernels on one or more devices specified in the 
+context.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>devices</strong> &#8211; list of opencl devices</li>
+<li><strong>device_type</strong> &#8211; type of device to create context from. used only if <cite>devices</cite> is empty.</li>
+<li><strong>properties</strong> &#8211; cl.ContextProperties object</li>
+<li><strong>callback</strong> &#8211; This callback function 
+will be used by the OpenCL implementation to report  information on errors that occur in this 
+context. the function signature must be callback(str, bytes)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="opencl.Context.devices">
+<tt class="descname">devices</tt><a class="headerlink" href="#opencl.Context.devices" title="Permalink to this definition">¶</a></dt>
+<dd><p>return a list of devices associated with this context</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Context.num_devices">
+<tt class="descname">num_devices</tt><a class="headerlink" href="#opencl.Context.num_devices" title="Permalink to this definition">¶</a></dt>
+<dd><p>return the number of devices</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Context.properties">
+<tt class="descname">properties</tt><a class="headerlink" href="#opencl.Context.properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>return a ContextProperties object</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Context.ref_count">
+<tt class="descname">ref_count</tt><a class="headerlink" href="#opencl.Context.ref_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>return opencl internal refrence count of this object</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="opencl-openclexception">
+<h2>opencl.OpenCLException<a class="headerlink" href="#opencl-openclexception" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="opencl.OpenCLException">
+<em class="property">class </em><tt class="descclassname">opencl.</tt><tt class="descname">OpenCLException</tt><a class="headerlink" href="#opencl.OpenCLException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base opencl exception object.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="opencl-contextual-memory">
+<h2>opencl.contextual_memory<a class="headerlink" href="#opencl-contextual-memory" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="opencl.contextual_memory">
+<em class="property">class </em><tt class="descclassname">opencl.</tt><tt class="descname">contextual_memory</tt><big>(</big><em>ctype=None</em>, <em>shape=None</em>, <em>flat=False</em><big>)</big><a class="headerlink" href="#opencl.contextual_memory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Memory &#8216;type&#8217; descriptor.</p>
+<dl class="attribute">
+<dt id="opencl.contextual_memory.array_info">
+<tt class="descname">array_info</tt><a class="headerlink" href="#opencl.contextual_memory.array_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="opencl.contextual_memory.ctype_string">
+<tt class="descname">ctype_string</tt><big>(</big><big>)</big><a class="headerlink" href="#opencl.contextual_memory.ctype_string" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="opencl.contextual_memory.derefrence">
+<tt class="descname">derefrence</tt><big>(</big><big>)</big><a class="headerlink" href="#opencl.contextual_memory.derefrence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the type that this object is a pointer to.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="opencl.contextual_memory.from_param">
+<tt class="descname">from_param</tt><big>(</big><big>)</big><a class="headerlink" href="#opencl.contextual_memory.from_param" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a ctypes.c_void_p from arg.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>arg</strong> &#8211; must be a MemoryObject.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.contextual_memory.nbytes">
+<tt class="descname">nbytes</tt><a class="headerlink" href="#opencl.contextual_memory.nbytes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.contextual_memory.size">
+<tt class="descname">size</tt><a class="headerlink" href="#opencl.contextual_memory.size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="opencl-global-memory">
+<h2>opencl.global_memory<a class="headerlink" href="#opencl-global-memory" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="opencl.global_memory">
+<em class="property">class </em><tt class="descclassname">opencl.</tt><tt class="descname">global_memory</tt><big>(</big><em>ctype=None</em>, <em>shape=None</em>, <em>flat=False</em><big>)</big><a class="headerlink" href="#opencl.global_memory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="opencl-kernel">
+<h2>opencl.Kernel<a class="headerlink" href="#opencl-kernel" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="opencl.Kernel">
+<em class="property">class </em><tt class="descclassname">opencl.</tt><tt class="descname">Kernel</tt><a class="headerlink" href="#opencl.Kernel" title="Permalink to this definition">¶</a></dt>
+<dd><p>openCl kernel object.</p>
+<dl class="attribute">
+<dt id="opencl.Kernel.argnames">
+<tt class="descname">argnames</tt><a class="headerlink" href="#opencl.Kernel.argnames" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Kernel.argtypes">
+<tt class="descname">argtypes</tt><a class="headerlink" href="#opencl.Kernel.argtypes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Kernel.compile_work_group_size">
+<tt class="descname">compile_work_group_size</tt><a class="headerlink" href="#opencl.Kernel.compile_work_group_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Kernel.context">
+<tt class="descname">context</tt><a class="headerlink" href="#opencl.Kernel.context" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Kernel.global_work_offset">
+<tt class="descname">global_work_offset</tt><a class="headerlink" href="#opencl.Kernel.global_work_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Kernel.global_work_size">
+<tt class="descname">global_work_size</tt><a class="headerlink" href="#opencl.Kernel.global_work_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Kernel.local_mem_size">
+<tt class="descname">local_mem_size</tt><a class="headerlink" href="#opencl.Kernel.local_mem_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Kernel.local_work_size">
+<tt class="descname">local_work_size</tt><a class="headerlink" href="#opencl.Kernel.local_work_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Kernel.name">
+<tt class="descname">name</tt><a class="headerlink" href="#opencl.Kernel.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Kernel.nargs">
+<tt class="descname">nargs</tt><a class="headerlink" href="#opencl.Kernel.nargs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Kernel.preferred_work_group_size_multiple">
+<tt class="descname">preferred_work_group_size_multiple</tt><a class="headerlink" href="#opencl.Kernel.preferred_work_group_size_multiple" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Kernel.private_mem_size">
+<tt class="descname">private_mem_size</tt><a class="headerlink" href="#opencl.Kernel.private_mem_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Kernel.program">
+<tt class="descname">program</tt><a class="headerlink" href="#opencl.Kernel.program" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Kernel.set_args">
+<tt class="descname">set_args</tt><a class="headerlink" href="#opencl.Kernel.set_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Kernel.work_group_size">
+<tt class="descname">work_group_size</tt><a class="headerlink" href="#opencl.Kernel.work_group_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="opencl-queue">
+<h2>opencl.Queue<a class="headerlink" href="#opencl-queue" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="opencl.Queue">
+<em class="property">class </em><tt class="descclassname">opencl.</tt><tt class="descname">Queue</tt><a class="headerlink" href="#opencl.Queue" title="Permalink to this definition">¶</a></dt>
+<dd><p>opencl.Queue(context, device=None, out_of_order_exec_mode=False, profiling=False)</p>
+<p>OpenCL objects such as memory, program and kernel objects are created using a context.  
+Operations on these objects are performed using  a command-queue. The command-queue can be 
+used to queue a set of operations (referred to as commands) in order.  Having multiple 
+command-queues allows applications to queue multiple independent commands without 
+requiring synchronization.  Note that this should work as long as these objects are not being 
+shared.  Sharing of objects across multiple command-queues will require the application to 
+perform appropriate synchronization</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>context</strong> &#8211; An opencl.Context object</li>
+<li><strong>device</strong> &#8211; if None use the first device in the context [default None]</li>
+<li><strong>out_of_order_exec_mode</strong> &#8211; enable out_of_order_exec_mode [default False]</li>
+<li><strong>profiling</strong> &#8211; enable profiling [default False]</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="opencl.Queue.barrier">
+<tt class="descname">barrier</tt><a class="headerlink" href="#opencl.Queue.barrier" title="Permalink to this definition">¶</a></dt>
+<dd><p>queue.barrier()</p>
+<p>Enqueues a barrier operation.
+The queue.barrier command ensures that all queued 
+commands in command_queue have finished execution before the next batch of commands can 
+begin execution.  The queue.barrier command is a synchronization point</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Queue.context">
+<tt class="descname">context</tt><a class="headerlink" href="#opencl.Queue.context" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the context that this queue was created with</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Queue.copy">
+<tt class="descname">copy</tt><a class="headerlink" href="#opencl.Queue.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Queue.device">
+<tt class="descname">device</tt><a class="headerlink" href="#opencl.Queue.device" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the device associated with this queue</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Queue.enqueue_copy_buffer">
+<tt class="descname">enqueue_copy_buffer</tt><a class="headerlink" href="#opencl.Queue.enqueue_copy_buffer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Queue.enqueue_copy_buffer_rect">
+<tt class="descname">enqueue_copy_buffer_rect</tt><a class="headerlink" href="#opencl.Queue.enqueue_copy_buffer_rect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Queue.enqueue_native_kernel">
+<tt class="descname">enqueue_native_kernel</tt><a class="headerlink" href="#opencl.Queue.enqueue_native_kernel" title="Permalink to this definition">¶</a></dt>
+<dd><p>queue.enqueue_native_kernel(function [, arg, ..., kwarg=, ...])</p>
+<p>Enqueues a command to execute a python function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>function</strong> &#8211; A callable python object</li>
+<li><strong>args</strong> &#8211; Arguments for function</li>
+<li><strong>kwargs</strong> &#8211; Keywords for function</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Queue.enqueue_nd_range_kernel">
+<tt class="descname">enqueue_nd_range_kernel</tt><a class="headerlink" href="#opencl.Queue.enqueue_nd_range_kernel" title="Permalink to this definition">¶</a></dt>
+<dd><p>queue.enqueue_nd_range_kernel(kernel, work_dim, global_work_size, global_work_offset=None, local_work_size=None, wait_on=())</p>
+<p>Enqueues a command to execute a kernel on a device</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>kernel</strong> &#8211; an opencl.Kernel object</li>
+<li><strong>work_dim</strong> &#8211; is the number of dimensions used to specify the global work-items  and work-items in the work-group.</li>
+<li><strong>global_work_size</strong> &#8211; A list of length work_dim that describe the number of global 
+work-items in work_dim dimensions that will execute the kernel function.  T</li>
+<li><strong>global_work_offset</strong> &#8211; Can be used to specify an array of work_dim unsigned values that describe 
+the offset used to calculate the global ID of a work-item.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>:param local_work_size:f A list of length work_dim unsigned values that describe the number of </dt>
+<dd>work-items that make up a work-group.
+If None, the OpenCL implementation will determine how to be break the global work-items into 
+appropriate work-group instances</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>wait_on</strong> &#8211; A list of events</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Queue.enqueue_read_buffer">
+<tt class="descname">enqueue_read_buffer</tt><a class="headerlink" href="#opencl.Queue.enqueue_read_buffer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Queue.enqueue_task">
+<tt class="descname">enqueue_task</tt><a class="headerlink" href="#opencl.Queue.enqueue_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>queue.enqueue_task(kernel,  wait_on=())</p>
+<p>Enqueues a command to execute a kernel on a device.  The kernel is executed using a single 
+work-item.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>kernel</strong> &#8211; an opencl kernel.</li>
+<li><strong>wait_on</strong> &#8211; a list of events</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Queue.enqueue_wait_for_events">
+<tt class="descname">enqueue_wait_for_events</tt><a class="headerlink" href="#opencl.Queue.enqueue_wait_for_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>queue.enqueue_wait_for_events(self, event, event2, ...)
+queue.enqueue_wait_for_events(self, eventlist)</p>
+<p>Enqueues a wait for a specific event or a list of events to complete before any future commands 
+queued in the command-queue are executed.  num_events specifies the number of events given 
+by event_list.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Queue.enqueue_write_buffer">
+<tt class="descname">enqueue_write_buffer</tt><a class="headerlink" href="#opencl.Queue.enqueue_write_buffer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Queue.finish">
+<tt class="descname">finish</tt><a class="headerlink" href="#opencl.Queue.finish" title="Permalink to this definition">¶</a></dt>
+<dd><p>queue.finish()</p>
+<p>Blocks until all previously queued OpenCL commands in command_queue are issued to the 
+associated device and have completed.  clFinish does not return until all queued commands in 
+command_queue have been processed and completed.  clFinish is also a synchronization point</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Queue.flush">
+<tt class="descname">flush</tt><a class="headerlink" href="#opencl.Queue.flush" title="Permalink to this definition">¶</a></dt>
+<dd><p>queue.flush()</p>
+<p>Issues all previously queued OpenCL commands in command_queue to the device associated 
+with command_queue.  clFlush only guarantees that all queued commands to command_queue
+will eventually be submitted to the appropriate device.  There is no guarantee that they will be 
+complete after clFlush returns.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="opencl.Queue.marker">
+<tt class="descname">marker</tt><a class="headerlink" href="#opencl.Queue.marker" title="Permalink to this definition">¶</a></dt>
+<dd><p>queue.marker()</p>
+<p>Enqueues a marker command to command_queue.  The marker command is not completed until 
+all commands enqueued before it have completed.  The marker command returns an event which 
+can be waited on, i.e. this event can be waited on to insure that all commands, which have been 
+queued before the marker command, have been completed.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">OpenCL for Python API</a><ul>
+<li><a class="reference internal" href="#opencl-platform">opencl.Platform</a></li>
+<li><a class="reference internal" href="#opencl-device">opencl.Device</a></li>
+<li><a class="reference internal" href="#opencl-event">opencl.Event</a></li>
+<li><a class="reference internal" href="#opencl-userevent">opencl.UserEvent</a></li>
+<li><a class="reference internal" href="#opencl-program">opencl.Program</a></li>
+<li><a class="reference internal" href="#opencl-memoryobject">opencl.MemoryObject</a></li>
+<li><a class="reference internal" href="#opencl-devicememoryview">opencl.DeviceMemoryView</a></li>
+<li><a class="reference internal" href="#opencl-imageformat">opencl.ImageFormat</a></li>
+<li><a class="reference internal" href="#opencl-image">opencl.Image</a></li>
+<li><a class="reference internal" href="#opencl-contextproperties">opencl.ContextProperties</a></li>
+<li><a class="reference internal" href="#opencl-context">opencl.Context</a></li>
+<li><a class="reference internal" href="#opencl-openclexception">opencl.OpenCLException</a></li>
+<li><a class="reference internal" href="#opencl-contextual-memory">opencl.contextual_memory</a></li>
+<li><a class="reference internal" href="#opencl-global-memory">opencl.global_memory</a></li>
+<li><a class="reference internal" href="#opencl-kernel">opencl.Kernel</a></li>
+<li><a class="reference internal" href="#opencl-queue">opencl.Queue</a></li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="api.html"
+                        title="previous chapter">CAPI</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="license.html"
+                        title="next chapter">BSD Licence Aggreement</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="sources/capi.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="license.html" title="BSD Licence Aggreement"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="CAPI"
+             >previous</a> |</li>
+        <li><a href="index.html">Clyther v1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Sean Ross-Ross.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

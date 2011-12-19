@@ -23,7 +23,7 @@
     <script type="text/javascript" src="static/underscore.js"></script>
     <script type="text/javascript" src="static/doctools.js"></script>
     <link rel="top" title="Clyther v1.0.0 documentation" href="#" />
-    <link rel="next" title="OpenCL for Python API" href="api.html" /> 
+    <link rel="next" title="C - api" href="api.html" /> 
   </head>
   <body>
     <div class="related">
@@ -36,7 +36,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="api.html" title="OpenCL for Python API"
+          <a href="api.html" title="C - api"
              accesskey="N">next</a> |</li>
         <li><a href="#">Clyther v1.0.0 documentation</a> &raquo;</li> 
       </ul>
@@ -49,30 +49,54 @@
             
   <div class="section" id="welcome-to-opencl-s-python-documentation">
 <h1>Welcome to OpenCL&#8217;s Python documentation!<a class="headerlink" href="#welcome-to-opencl-s-python-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="links">
+<h2>Links:<a class="headerlink" href="#links" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference external" href="http://srossross.github.com/oclpb/develop/">Homepage</a></li>
+<li><a class="reference external" href="https://github.com/srossross/oclpb/issues/">Issue Tracker</a></li>
+<li><a class="reference external" href="http://srossross.github.com/oclpb/develop/">Development documentation</a></li>
+<li><a class="reference external" href="http://pypi.python.org/pypi/oclpb/">PyPi</a></li>
+<li><a class="reference external" href="https://github.com/srossross/oclpb/">Github</a></li>
+<li><a class="reference external" href="http://www.khronos.org/registry/cl/specs/opencl-1.0.29.pdf">OpenCL 1.1 spec</a></li>
+</ul>
+</div>
+<div class="section" id="contributing">
+<h2>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Author Email: <a class="reference external" href="mailto:srossross&#37;&#52;&#48;enthought&#46;com">srossross<span>&#64;</span>enthought<span>&#46;</span>com</a></li>
+<li>Enthought Email: <a class="reference external" href="mailto:info&#37;&#52;&#48;enthought&#46;com">info<span>&#64;</span>enthought<span>&#46;</span>com</a></li>
+<li><a class="reference external" href="nvie.com/posts/a-successful-git-branching-model/">Git development Model</a></li>
+</ul>
+</div>
 <div class="section" id="contents">
 <h2>Contents:<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="api.html">OpenCL for Python API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api.html#opencl-platform">opencl.Platform</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#opencl-device">opencl.Device</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#opencl-event">opencl.Event</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#opencl-userevent">opencl.UserEvent</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#opencl-program">opencl.Program</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#opencl-memoryobject">opencl.MemoryObject</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#opencl-devicememoryview">opencl.DeviceMemoryView</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#opencl-imageformat">opencl.ImageFormat</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#opencl-image">opencl.Image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#opencl-contextproperties">opencl.ContextProperties</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#opencl-context">opencl.Context</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#opencl-openclexception">opencl.OpenCLException</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#opencl-contextual-memory">opencl.contextual_memory</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#opencl-global-memory">opencl.global_memory</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#opencl-kernel">opencl.Kernel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#opencl-queue">opencl.Queue</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#functions">Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">C - api</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api.html#calling-opencl-for-python-s-c-interface">Calling OpenCL for Python&#8217;s C interface</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="capi.html">OpenCL for Python API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="capi.html#opencl-platform">opencl.Platform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="capi.html#opencl-device">opencl.Device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="capi.html#opencl-event">opencl.Event</a></li>
+<li class="toctree-l2"><a class="reference internal" href="capi.html#opencl-userevent">opencl.UserEvent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="capi.html#opencl-program">opencl.Program</a></li>
+<li class="toctree-l2"><a class="reference internal" href="capi.html#opencl-memoryobject">opencl.MemoryObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="capi.html#opencl-devicememoryview">opencl.DeviceMemoryView</a></li>
+<li class="toctree-l2"><a class="reference internal" href="capi.html#opencl-imageformat">opencl.ImageFormat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="capi.html#opencl-image">opencl.Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="capi.html#opencl-contextproperties">opencl.ContextProperties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="capi.html#opencl-context">opencl.Context</a></li>
+<li class="toctree-l2"><a class="reference internal" href="capi.html#opencl-openclexception">opencl.OpenCLException</a></li>
+<li class="toctree-l2"><a class="reference internal" href="capi.html#opencl-contextual-memory">opencl.contextual_memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="capi.html#opencl-global-memory">opencl.global_memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="capi.html#opencl-kernel">opencl.Kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="capi.html#opencl-queue">opencl.Queue</a></li>
+<li class="toctree-l2"><a class="reference internal" href="capi.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">BSD Licence Aggreement</a></li>
 </ul>
 </div>
 </div>
@@ -95,6 +119,8 @@
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Welcome to OpenCL&#8217;s Python documentation!</a><ul>
+<li><a class="reference internal" href="#links">Links:</a></li>
+<li><a class="reference internal" href="#contributing">Contributing</a></li>
 <li><a class="reference internal" href="#contents">Contents:</a><ul>
 </ul>
 </li>
@@ -105,7 +131,7 @@
 
   <h4>Next topic</h4>
   <p class="topless"><a href="api.html"
-                        title="next chapter">OpenCL for Python API</a></p>
+                        title="next chapter">C - api</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="sources/index.txt"
@@ -138,7 +164,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="api.html" title="OpenCL for Python API"
+          <a href="api.html" title="C - api"
              >next</a> |</li>
         <li><a href="#">Clyther v1.0.0 documentation</a> &raquo;</li> 
       </ul>
