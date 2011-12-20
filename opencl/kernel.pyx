@@ -25,7 +25,7 @@ class contextual_memory(object):
     qualifier = None
     
     def __init__(self, ctype=None, shape=None, flat=False):
-        self.shape = tuple(shape) if shape else shape
+        self._shape = tuple(shape) if shape else shape
         self.flat = flat
         
         if ctype is None:
@@ -45,7 +45,9 @@ class contextual_memory(object):
             return False
         if not self.format == other.format:
             return False
-        if not self.shape == other.shape:
+#        if not self._shape == other._shape:
+#            return False
+        if not self.flat == other.flat:
             return False
         
         return True
@@ -53,11 +55,25 @@ class contextual_memory(object):
     @property
     def size(self):
         return ctypes.c_size_t
+
+    @property
+    def offset(self):
+        from opencl.cl_types import cl_uint
+        return cl_uint
+    @property
+    def shape(self):
+        from opencl.cl_types import cl_uint4
+        return cl_uint4
+    
+    @property
+    def strides(self):
+        from opencl.cl_types import cl_uint4
+        return cl_uint4
     
     @property
     def nbytes(self):
         nbytes = ctypes.sizeof(self.ctype)
-        for item in self.shape:
+        for item in self._shape:
             nbytes *= item
         return nbytes
 
@@ -104,21 +120,21 @@ class contextual_memory(object):
         return ctypes.c_void_p(< size_t > ptr)
     
     def __repr__(self):
-        if self.shape is None:
+        if self._shape is None:
             return '<memory qualifier=%r format=%r>' % (self.qualifier, self.format)
         else:
-            return '<memory qualifier=%r format=%r shape=%s>' % (self.qualifier, self.format, self.shape)
-    
+            return '<memory qualifier=%r format=%r shape=%s>' % (self.qualifier, self.format, self._shape)
+        
 class global_memory(contextual_memory):
     qualifier = '__global'
     def __hash__(self):
-        return hash(('global_memory', self.format, self.shape))
+        return hash(('global_memory', self.format, self.flat))
 
 class constant_memory(contextual_memory):
     qualifier = '__constant'
     
     def __hash__(self):
-        return hash(('local_memory', self.format, self.shape))
+        return hash(('local_memory', self.format, self.flat))
     
     @property
     def local_strides(self):
@@ -128,19 +144,19 @@ class local_memory(contextual_memory):
     qualifier = '__local'
     
     def __hash__(self):
-        return hash(('local_memory', self.format, self.shape))
+        return hash(('local_memory', self.format))
     
     @property
     def local_info(self):
         ai = self.array_info(0, 0, 0, 0, 0, 0, 0, 0,)
         
-        cdef size_t ndim = len(self.shape)
+        cdef size_t ndim = len(self._shape)
         
         cdef Py_ssize_t shape[4]
         cdef Py_ssize_t strides[4]
         
         ai[3] = 1
-        for i, item in enumerate(self.shape):
+        for i, item in enumerate(self._shape):
             shape[i] = item
             ai[i] = item
             ai[3] = ai[3] * item

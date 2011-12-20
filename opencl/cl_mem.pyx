@@ -288,7 +288,7 @@ cdef class DeviceMemoryView(MemoryObject):
             for i in range(self.buffer.ndim):
                 shape.append(self.buffer.shape[i])
             return tuple(shape)
-
+        
     property strides:
         'Strides of the array'
         def __get__(self):
@@ -296,6 +296,41 @@ cdef class DeviceMemoryView(MemoryObject):
             for i in range(self.buffer.ndim):
                 strides.append(self.buffer.strides[i])
             return tuple(strides)
+        
+    def reshape(self, shape):
+        
+        if reduce(lambda a, b:a * b, shape, 1) != self.size:
+            raise ValueError("total size of new array must be unchanged")
+        
+        if not self.is_contiguous:
+            raise Exception("array must be contiguous to reshape")
+        
+        cdef cl_mem buffer_id = self.buffer_id
+         
+        cdef Py_buffer * result_buffer = < Py_buffer *> malloc(sizeof(Py_buffer))
+        
+        cdef size_t ndim = len(shape)
+        
+        result_buffer.ndim = ndim
+        result_buffer.itemsize = self.itemsize
+        
+        result_buffer.format = < char *> malloc(len(self.format) + 1)
+        cdef char * fmt = self.format
+        strcpy(result_buffer.format, fmt)
+        
+        result_buffer.shape = < Py_ssize_t *> malloc(sizeof(Py_ssize_t) * ndim)
+        result_buffer.strides = < Py_ssize_t *> malloc(sizeof(Py_ssize_t) * ndim)
+        
+        for i, item in enumerate(shape):
+            result_buffer.shape[i] = item
+            
+        PyBuffer_FillContiguousStrides(result_buffer.ndim, result_buffer.shape, result_buffer.strides, result_buffer.itemsize, 'C')
+        
+        result_buffer.internal = NULL
+        result_buffer.suboffsets = NULL
+        
+        return CyView_Create(buffer_id, result_buffer, 1)
+        
         
     def map(self, queue, blocking=True, readable=True, writeable=True):
         '''
@@ -704,10 +739,11 @@ cdef class MemoryViewMap:
         
         cdef cl_mem memobj = CyMemoryObject_GetID(self.dview())
         cdef size_t mem_size = self.dview().mem_size
-        bytes = clEnqueueMapBuffer(self.command_queue, memobj,
-                                   self.blocking_map, self.map_flags, 0, mem_size,
-                                   num_events_in_wait_list, event_wait_list, NULL,
-                                   & err_code)
+        with nogil:
+            bytes = clEnqueueMapBuffer(self.command_queue, memobj,
+                                       self.blocking_map, self.map_flags, 0, mem_size,
+                                       num_events_in_wait_list, event_wait_list, NULL,
+                                       & err_code)
          
         if err_code != CL_SUCCESS:
             raise OpenCLException(err_code)

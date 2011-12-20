@@ -95,7 +95,18 @@ class cl_vector(array_type):
     def __getitem__(self, index_type):
         return self._type_
 
-            
+
+import copy_reg
+
+def pickle_cl_vector(vector_obj):
+    constructor = cl_vector
+    args = (vector_obj.__name__, vector_obj._type_, vector_obj._length_)
+    state = None
+    
+    return (constructor, args, state, None, None)
+
+    
+copy_reg.pickle(cl_vector, pickle_cl_vector)
             
     
 

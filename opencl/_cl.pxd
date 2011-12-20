@@ -498,27 +498,27 @@ cdef extern from "OpenCL/cl.h":
 
     cl_int clFinish(cl_command_queue) nogil
 
-    cl_int clEnqueueReadBuffer(cl_command_queue, cl_mem, cl_bool, size_t, size_t, void *, cl_uint, cl_event *, cl_event *)
+    cl_int clEnqueueReadBuffer(cl_command_queue, cl_mem, cl_bool, size_t, size_t, void *, cl_uint, cl_event *, cl_event *)  nogil
 
-    cl_int clEnqueueWriteBuffer(cl_command_queue, cl_mem, cl_bool, size_t, size_t, void *, cl_uint, cl_event *, cl_event *)
+    cl_int clEnqueueWriteBuffer(cl_command_queue, cl_mem, cl_bool, size_t, size_t, void *, cl_uint, cl_event *, cl_event *)  nogil
 
-    cl_int clEnqueueCopyBuffer(cl_command_queue, cl_mem, cl_mem, size_t, size_t, size_t, cl_uint, cl_event *, cl_event *)
+    cl_int clEnqueueCopyBuffer(cl_command_queue, cl_mem, cl_mem, size_t, size_t, size_t, cl_uint, cl_event *, cl_event *) nogil
 
-    cl_int clEnqueueReadImage(cl_command_queue, cl_mem, cl_bool, size_t *, size_t *, size_t, size_t, void *, cl_uint, cl_event *, cl_event *)
+    cl_int clEnqueueReadImage(cl_command_queue, cl_mem, cl_bool, size_t *, size_t *, size_t, size_t, void *, cl_uint, cl_event *, cl_event *) nogil
 
-    cl_int clEnqueueWriteImage(cl_command_queue, cl_mem, cl_bool, size_t *, size_t *, size_t, size_t, void *, cl_uint, cl_event *, cl_event *)
+    cl_int clEnqueueWriteImage(cl_command_queue, cl_mem, cl_bool, size_t *, size_t *, size_t, size_t, void *, cl_uint, cl_event *, cl_event *) nogil
 
-    cl_int clEnqueueCopyImage(cl_command_queue, cl_mem, cl_mem, size_t *, size_t *, size_t *, cl_uint, cl_event *, cl_event *)
+    cl_int clEnqueueCopyImage(cl_command_queue, cl_mem, cl_mem, size_t *, size_t *, size_t *, cl_uint, cl_event *, cl_event *) nogil
 
-    cl_int clEnqueueCopyImageToBuffer(cl_command_queue, cl_mem, cl_mem, size_t *, size_t *, size_t, cl_uint, cl_event *, cl_event *)
+    cl_int clEnqueueCopyImageToBuffer(cl_command_queue, cl_mem, cl_mem, size_t *, size_t *, size_t, cl_uint, cl_event *, cl_event *) nogil
 
-    cl_int clEnqueueCopyBufferToImage(cl_command_queue, cl_mem, cl_mem, size_t, size_t *, size_t *, cl_uint, cl_event *, cl_event *)
+    cl_int clEnqueueCopyBufferToImage(cl_command_queue, cl_mem, cl_mem, size_t, size_t *, size_t *, cl_uint, cl_event *, cl_event *) nogil
 
-    void *clEnqueueMapBuffer(cl_command_queue, cl_mem, cl_bool, cl_map_flags, size_t, size_t, cl_uint, cl_event *, cl_event *, cl_int *)
+    void *clEnqueueMapBuffer(cl_command_queue, cl_mem, cl_bool, cl_map_flags, size_t, size_t, cl_uint, cl_event *, cl_event *, cl_int *) nogil
 
-    void *clEnqueueMapImage(cl_command_queue, cl_mem, cl_bool, cl_map_flags, size_t *, size_t *, size_t *, size_t *, cl_uint, cl_event *, cl_event *, cl_int *)
+    void *clEnqueueMapImage(cl_command_queue, cl_mem, cl_bool, cl_map_flags, size_t *, size_t *, size_t *, size_t *, cl_uint, cl_event *, cl_event *, cl_int *) nogil
 
-    cl_int clEnqueueUnmapMemObject(cl_command_queue, cl_mem, void *, cl_uint, cl_event *, cl_event *)
+    cl_int clEnqueueUnmapMemObject(cl_command_queue, cl_mem, void *, cl_uint, cl_event *, cl_event *) nogil
 
     cl_int clEnqueueNDRangeKernel(cl_command_queue, cl_kernel, cl_uint, size_t *, size_t *, size_t *, cl_uint, cl_event *, cl_event *)
 

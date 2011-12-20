@@ -36,6 +36,7 @@ Contents:
    :maxdepth: 2
 
    getting_started
+   diff_pyopencl
    api
    capi
    license

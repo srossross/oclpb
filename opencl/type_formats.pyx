@@ -3,7 +3,27 @@ import _ctypes
 import struct
 import numpy as np
 import ctypes
+import copy_reg
 
+def ctype_pickle_function(ctype):
+    
+    constructor = ctype_from_format
+    args = (type_format(ctype),)
+    state = None
+    
+    return (constructor, args, state, None, None)
+
+def register_ctypes_pickle():
+    
+
+    PyCSimpleType = type(_ctypes._SimpleCData)
+    copy_reg.pickle(PyCSimpleType, ctype_pickle_function)
+    
+    PyCArrayType = type(_ctypes.Array)
+    copy_reg.pickle(PyCArrayType, ctype_pickle_function)
+
+    
+register_ctypes_pickle()
 
 def complex_type_format(any_type):
     pass
