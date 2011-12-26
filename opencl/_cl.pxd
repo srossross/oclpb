@@ -66,12 +66,16 @@ cdef extern from "OpenCL/cl.h":
         CL_PLATFORM_VENDOR
         CL_PLATFORM_EXTENSIONS
         
-    enum cl_device_type:
-        CL_DEVICE_TYPE_CPU
-        CL_DEVICE_TYPE_GPU
-        CL_DEVICE_TYPE_ACCELERATOR
-        CL_DEVICE_TYPE_DEFAULT
-        CL_DEVICE_TYPE_ALL
+    ctypedef cl_ulong cl_bitfield
+
+    ctypedef cl_bitfield cl_device_type
+
+    cdef cl_device_type \
+        CL_DEVICE_TYPE_CPU,\
+        CL_DEVICE_TYPE_GPU,\
+        CL_DEVICE_TYPE_ACCELERATOR,\
+        CL_DEVICE_TYPE_DEFAULT,\
+        CL_DEVICE_TYPE_ALL,\
         
     enum cl_mem_flags:
         CL_MEM_READ_WRITE
@@ -122,6 +126,7 @@ cdef extern from "OpenCL/cl.h":
         CL_DEVICE_EXTENSIONS
         
         CL_DEVICE_QUEUE_PROPERTIES
+        CL_DEVICE_PLATFORM
 
     
         
@@ -187,10 +192,28 @@ cdef extern from "OpenCL/cl.h":
         CL_KERNEL_CONTEXT
         CL_KERNEL_PROGRAM
         
-    enum cl_program_buid_info:
+    ctypedef enum cl_kernel_work_group_info:
+        CL_KERNEL_WORK_GROUP_SIZE
+        CL_KERNEL_COMPILE_WORK_GROUP_SIZE
+        CL_KERNEL_LOCAL_MEM_SIZE
+        CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE
+        CL_KERNEL_PRIVATE_MEM_SIZE
+
+        
+    ctypedef enum cl_program_buid_info:
         CL_PROGRAM_BUILD_STATUS
         CL_PROGRAM_BUILD_OPTIONS
         CL_PROGRAM_BUILD_LOG
+
+    
+    ctypedef cl_int cl_build_status
+    
+    cdef cl_build_status CL_BUILD_NONE ,\
+        CL_BUILD_ERROR ,\
+        CL_BUILD_SUCCESS ,\
+        CL_BUILD_IN_PROGRESS
+        
+    
     
     enum cl_event_info:
         CL_EVENT_COMMAND_EXECUTION_STATUS
@@ -284,10 +307,6 @@ cdef extern from "OpenCL/cl.h":
 
     ctypedef cl_uint cl_bool
 
-    ctypedef cl_ulong cl_bitfield
-
-    ctypedef cl_bitfield cl_device_type
-
     ctypedef cl_uint cl_platform_info
 
     ctypedef cl_uint cl_device_info
@@ -334,8 +353,6 @@ cdef extern from "OpenCL/cl.h":
     ctypedef cl_uint cl_program_info
 
     ctypedef cl_uint cl_program_build_info
-
-    ctypedef cl_int cl_build_status
 
     ctypedef cl_uint cl_kernel_work_group_info
 
@@ -481,27 +498,27 @@ cdef extern from "OpenCL/cl.h":
 
     cl_int clFinish(cl_command_queue) nogil
 
-    cl_int clEnqueueReadBuffer(cl_command_queue, cl_mem, cl_bool, size_t, size_t, void *, cl_uint, cl_event *, cl_event *)
+    cl_int clEnqueueReadBuffer(cl_command_queue, cl_mem, cl_bool, size_t, size_t, void *, cl_uint, cl_event *, cl_event *)  nogil
 
-    cl_int clEnqueueWriteBuffer(cl_command_queue, cl_mem, cl_bool, size_t, size_t, void *, cl_uint, cl_event *, cl_event *)
+    cl_int clEnqueueWriteBuffer(cl_command_queue, cl_mem, cl_bool, size_t, size_t, void *, cl_uint, cl_event *, cl_event *)  nogil
 
-    cl_int clEnqueueCopyBuffer(cl_command_queue, cl_mem, cl_mem, size_t, size_t, size_t, cl_uint, cl_event *, cl_event *)
+    cl_int clEnqueueCopyBuffer(cl_command_queue, cl_mem, cl_mem, size_t, size_t, size_t, cl_uint, cl_event *, cl_event *) nogil
 
-    cl_int clEnqueueReadImage(cl_command_queue, cl_mem, cl_bool, size_t *, size_t *, size_t, size_t, void *, cl_uint, cl_event *, cl_event *)
+    cl_int clEnqueueReadImage(cl_command_queue, cl_mem, cl_bool, size_t *, size_t *, size_t, size_t, void *, cl_uint, cl_event *, cl_event *) nogil
 
-    cl_int clEnqueueWriteImage(cl_command_queue, cl_mem, cl_bool, size_t *, size_t *, size_t, size_t, void *, cl_uint, cl_event *, cl_event *)
+    cl_int clEnqueueWriteImage(cl_command_queue, cl_mem, cl_bool, size_t *, size_t *, size_t, size_t, void *, cl_uint, cl_event *, cl_event *) nogil
 
-    cl_int clEnqueueCopyImage(cl_command_queue, cl_mem, cl_mem, size_t *, size_t *, size_t *, cl_uint, cl_event *, cl_event *)
+    cl_int clEnqueueCopyImage(cl_command_queue, cl_mem, cl_mem, size_t *, size_t *, size_t *, cl_uint, cl_event *, cl_event *) nogil
 
-    cl_int clEnqueueCopyImageToBuffer(cl_command_queue, cl_mem, cl_mem, size_t *, size_t *, size_t, cl_uint, cl_event *, cl_event *)
+    cl_int clEnqueueCopyImageToBuffer(cl_command_queue, cl_mem, cl_mem, size_t *, size_t *, size_t, cl_uint, cl_event *, cl_event *) nogil
 
-    cl_int clEnqueueCopyBufferToImage(cl_command_queue, cl_mem, cl_mem, size_t, size_t *, size_t *, cl_uint, cl_event *, cl_event *)
+    cl_int clEnqueueCopyBufferToImage(cl_command_queue, cl_mem, cl_mem, size_t, size_t *, size_t *, cl_uint, cl_event *, cl_event *) nogil
 
-    void *clEnqueueMapBuffer(cl_command_queue, cl_mem, cl_bool, cl_map_flags, size_t, size_t, cl_uint, cl_event *, cl_event *, cl_int *)
+    void *clEnqueueMapBuffer(cl_command_queue, cl_mem, cl_bool, cl_map_flags, size_t, size_t, cl_uint, cl_event *, cl_event *, cl_int *) nogil
 
-    void *clEnqueueMapImage(cl_command_queue, cl_mem, cl_bool, cl_map_flags, size_t *, size_t *, size_t *, size_t *, cl_uint, cl_event *, cl_event *, cl_int *)
+    void *clEnqueueMapImage(cl_command_queue, cl_mem, cl_bool, cl_map_flags, size_t *, size_t *, size_t *, size_t *, cl_uint, cl_event *, cl_event *, cl_int *) nogil
 
-    cl_int clEnqueueUnmapMemObject(cl_command_queue, cl_mem, void *, cl_uint, cl_event *, cl_event *)
+    cl_int clEnqueueUnmapMemObject(cl_command_queue, cl_mem, void *, cl_uint, cl_event *, cl_event *) nogil
 
     cl_int clEnqueueNDRangeKernel(cl_command_queue, cl_kernel, cl_uint, size_t *, size_t *, size_t *, cl_uint, cl_event *, cl_event *)
 

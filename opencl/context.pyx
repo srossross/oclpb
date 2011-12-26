@@ -1,15 +1,20 @@
 from opencl.errors import OpenCLException
 
 from _cl cimport * 
-from opencl.copencl cimport clPlatformFromPyPlatform, clPlatformAs_PyPlatform
-from opencl.copencl cimport CyDevice_GetID, DeviceIDAsPyDevice
+from opencl.copencl cimport CyPlatform_GetID, CyPlatform_Create
+from opencl.copencl cimport CyDevice_GetID, CyDevice_Create
 from libc.stdlib cimport malloc, free 
 
 from cpython cimport Py_INCREF 
 
 cdef class ContextProperties:
-
+    '''
+    Store of key value pairs that can be used to initialize
+    an opencl.Context object.
+    '''
+    
     cdef public object properties_dict
+    property_names_lookup = { < size_t > CL_CONTEXT_PLATFORM : 'platform'}
     
     def __cinit__(self):
         self.properties_dict = {}
@@ -21,16 +26,16 @@ cdef class ContextProperties:
             if 'platform' in self.properties_dict:
                 plat = < size_t > self.properties_dict['platform'][1]
                 platform_id = < cl_platform_id > plat
-                return clPlatformAs_PyPlatform(< cl_platform_id > plat)
+                return CyPlatform_Create(< cl_platform_id > plat)
             else:
                 return None
 
         def __set__(self, value):
-            cdef cl_platform_id platform_id = clPlatformFromPyPlatform(value)
+            cdef cl_platform_id platform_id = CyPlatform_GetID(value)
             self.properties_dict['platform'] = (< size_t > CL_CONTEXT_PLATFORM, < size_t > platform_id)
 
     def set_property(self, name, size_t property, size_t value):
-        self.properties_dict['name'] = (property, value)
+        self.properties_dict[name] = (property, value)
     
     def as_dict(self):
         return self.properties_dict
@@ -58,9 +63,9 @@ cdef class ContextProperties:
         return props
     
     def __repr__(self):
-        items = ['%s=%r' % (key, value[1]) for (key, value) in self.properties_dict.items()]
-        
-        return '<ContextProperties %s>' % (' '.join(items))
+#        items = ['%s=%r' % (key, value[1]) for (key, value) in self.properties_dict.items()]
+        d = self.properties_dict
+        return '<ContextProperties %r>' % (d,)
 
 
 _context_errors = {
@@ -85,7 +90,7 @@ _context_errors = {
 cdef void pfn_context_err_notify(char * errinfo, void * private_info, size_t cb, object user_data) with gil:
 
     cdef str info = errinfo
-    cdef bytes pr_info = (<char*> private_info)[:cb]
+    cdef bytes pr_info = (< char *> private_info)[:cb]
     
     user_data(info, pr_info)
 
@@ -115,6 +120,12 @@ cdef class Context:
     def __cinit__(self):
         self.context_id = NULL
         
+    def __dealloc__(self):
+        if self.context_id != NULL:
+            clReleaseContext(self.context_id)
+        self.context_id = NULL
+
+        
     def __init__(self, devices=(), device_type=CL_DEVICE_TYPE_DEFAULT, ContextProperties properties=None, callback=None):
         
         cdef cl_context_properties * props = NULL
@@ -131,7 +142,7 @@ cdef class Context:
         cdef void * user_data = NULL
         
         if callback is not None:
-            pfn_notify = < void *> &pfn_context_err_notify
+            pfn_notify = < void *> & pfn_context_err_notify
             Py_INCREF(callback) 
             user_data = < void *> callback  
             
@@ -156,37 +167,68 @@ cdef class Context:
                 raise OpenCLException(err_code, _context_errors)
 
     
-    def __dealloc__(self):
-        if self.context_id != NULL:
-            clReleaseContext(self.context_id)
-        self.context_id = NULL
-        
     def __repr__(self):
-        return '<opencl.Context>'
-    
-    def retain(self):
-        clRetainContext(self.context_id)
-
-    def release(self):
-        clReleaseContext(self.context_id)
+        return '<%s num_devices=%i>' % (type(self).__name__, self.num_devices)
     
     property ref_count:
+        'return opencl internal refrence count of this object'
         def __get__(self):
             pass
         
     property num_devices:
+        'return the number of devices'
         def __get__(self):
             
             cdef cl_int err_code
             cdef cl_uint num_devices
             err_code = clGetContextInfo (self.context_id, CL_CONTEXT_NUM_DEVICES, sizeof(cl_uint), & num_devices, NULL)
             
-            if err_code != CL_SUCCESS:
-                raise OpenCLException(err_code)
+            if err_code != CL_SUCCESS: raise OpenCLException(err_code)
             
             return num_devices
             
+    property properties:
+        'return a ContextProperties object'
+        def __get__(self):
+            properties = ContextProperties()
+            
+            cdef cl_int err_code
+            cdef size_t props_size
+            cdef cl_context_properties * props = NULL
+            
+            err_code = clGetContextInfo (self.context_id, CL_CONTEXT_PROPERTIES, 0, NULL, & props_size)
+            if err_code != CL_SUCCESS: raise OpenCLException(err_code)
+            
+            if not props_size:
+                return properties
+            
+            props = < cl_context_properties *> malloc(props_size)
+            
+            err_code = clGetContextInfo (self.context_id, CL_CONTEXT_PROPERTIES, props_size, props, NULL)
+            if err_code != CL_SUCCESS:
+                free(props) 
+                raise OpenCLException(err_code)
+            
+            if props[0] != NULL:
+                
+                nprops = props_size // (2 * sizeof(cl_context_properties))
+                
+                for i in range(nprops):
+                    if (< size_t > props[i * 2]) == 0:
+                        break
+                    else:
+                        name = < size_t > props[i * 2]
+                        rname = ContextProperties.property_names_lookup.get(name, name)
+                        properties.set_property(rname, name, < size_t > props[i * 2 + 1])
+
+                    
+            free(props)
+            return properties
+            
+        
     property devices:
+        'return a list of devices associated with this context'
+        
         def __get__(self):
             
             cdef cl_int err_code
@@ -204,7 +246,7 @@ cdef class Context:
             devices = []
             for i in range(num_devices): 
                 device_id = _devices[i]
-                device = DeviceIDAsPyDevice(device_id)
+                device = CyDevice_Create(device_id)
                 devices.append(device) 
                 
             free(_devices)

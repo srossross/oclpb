@@ -5,7 +5,7 @@ import weakref
 import struct
 import ctypes
 from opencl.type_formats import refrence, ctype_from_format, type_format, cdefn
-from opencl.errors import OpenCLException
+from opencl.errors import OpenCLException, BuildError
 
 from libc.stdlib cimport malloc, free 
 from libc.stdio cimport printf
@@ -26,6 +26,7 @@ PyEval_InitThreads()
 
 cpdef get_platforms():
     '''
+    Return a list of the platforms connected to the host.
     '''
     cdef cl_uint num_platforms
     cdef cl_platform_id plid
@@ -43,7 +44,7 @@ cpdef get_platforms():
     
     platforms = []
     for i in range(num_platforms):
-        plat = Platform()
+        plat = <Platform> Platform.__new__(Platform)
         plat.platform_id = cl_platform_ids[i]
         platforms.append(plat)
         
@@ -52,11 +53,18 @@ cpdef get_platforms():
     
 
 cdef class Platform:
-
+    '''
+    opencl.Platform not constructable
+    
+    use  opencl.get_platforms() to get a list of 
+    '''
     cdef cl_platform_id platform_id
     
     def __cinit__(self):
         pass
+    
+    def __init__(self):
+        raise Exception("Can not create a platform: use opencl.get_platforms()")
     
     def __repr__(self):
         return '<opencl.Platform name=%r profile=%r>' % (self.name, self.profile,)
@@ -87,42 +95,60 @@ cdef class Platform:
         return a_python_byte_string
 
     property profile:
+        '''
+        return the plafrom profile info
+        '''
         def __get__(self):
             return self.get_info(CL_PLATFORM_PROFILE)
 
     property version:
+        '''
+        return the version string of the platform
+        '''
         def __get__(self):
             return self.get_info(CL_PLATFORM_VERSION)
         
     property name:
+        'platform name'
         def __get__(self):
             return self.get_info(CL_PLATFORM_NAME)
 
     property vendor:
+        'platform vendor'
         def __get__(self):
             return self.get_info(CL_PLATFORM_VENDOR)
 
     property extensions:
+        'platform extensions as a string'
         def __get__(self):
             return self.get_info(CL_PLATFORM_EXTENSIONS)
 
-    def  devices(self, cl_device_type dtype=CL_DEVICE_TYPE_ALL):
+    property devices:
+        'list of all devices attached to this platform'
+        def __get__(self):
+            return self.get_devices()
 
+    def  get_devices(self, cl_device_type device_type=CL_DEVICE_TYPE_ALL):
+        '''
+        plat.get_devices(device_type=opencl.Device.ALL)
+        
+        return a list of devices by type.
+        '''
         cdef cl_int err_code
            
         cdef cl_uint num_devices
-        err_code = clGetDeviceIDs(self.platform_id, dtype, 0, NULL, & num_devices)
+        err_code = clGetDeviceIDs(self.platform_id, device_type, 0, NULL, & num_devices)
             
         if err_code != CL_SUCCESS:
             raise OpenCLException(err_code)
         
         cdef cl_device_id * result = < cl_device_id *> malloc(num_devices * sizeof(cl_device_id *))
         
-        err_code = clGetDeviceIDs(self.platform_id, dtype, num_devices, result, NULL)
+        err_code = clGetDeviceIDs(self.platform_id, device_type, num_devices, result, NULL)
         
         devices = []
         for i in range(num_devices):
-            device = Device()
+            device = <Device> Device.__new__(Device)
             device.device_id = result[i]
             devices.append(device)
             
@@ -131,6 +157,20 @@ cdef class Platform:
         
         return devices
         
+    
+    def __hash__(self):
+        return < size_t > self.platform_id
+
+    def __richcmp__(Platform self, other, op):
+        
+        if not isinstance(other, Platform):
+            return NotImplemented
+        
+        if op == 2:
+            return self.platform_id == CyPlatform_GetID(other)
+        else:
+            return NotImplemented
+
 cdef class Device:
     DEFAULT = CL_DEVICE_TYPE_DEFAULT
     ALL = CL_DEVICE_TYPE_ALL
@@ -141,6 +181,9 @@ cdef class Device:
 
     def __cinit__(self):
         pass
+    
+    def __init__(self):
+        raise Exception("opencl.Device object can not be constructed.")
     
     def __repr__(self):
         return '<opencl.Device name=%r type=%r>' % (self.name, self.type,)
@@ -161,7 +204,22 @@ cdef class Device:
         else:
             return NotImplemented
             
+    property platform:
+        '''
+        return the platform this device is associated with.
+        '''
+        def __get__(self):
+            cdef cl_int err_code
+            cdef cl_platform_id plat_id
+            err_code = clGetDeviceInfo(self.device_id, CL_DEVICE_PLATFORM, sizeof(cl_platform_id), < void *>& plat_id, NULL)
+                
+            if err_code != CL_SUCCESS:
+                raise OpenCLException(err_code)
+            
+            return CyPlatform_Create(plat_id)
+        
     property type:
+        'return device type: one of [Device.DEFAULT, Device.ALL, Device.GPU or Device.CPU]'
         def __get__(self):
             cdef cl_int err_code
             cdef cl_device_type dtype
@@ -173,6 +231,7 @@ cdef class Device:
             return dtype
 
     property has_image_support:
+        'test if this device supports the openc.Image class'
         def __get__(self):
             cdef cl_int err_code
             cdef cl_bool result
@@ -185,6 +244,7 @@ cdef class Device:
             return True if result else False
 
     property name:
+        'the name of this device'
         def __get__(self):
             cdef size_t size
             cdef cl_int err_code
@@ -206,6 +266,11 @@ cdef class Device:
             return a_python_byte_string
 
     property queue_properties:
+        '''
+        return queue properties as a bitfield
+        
+        see also `has_queue_out_of_order_exec_mode` and `has_queue_profiling`
+        '''
         def __get__(self):
             cdef size_t size
             cdef cl_int err_code
@@ -219,14 +284,17 @@ cdef class Device:
             return result 
         
     property has_queue_out_of_order_exec_mode:
+        'test if this device supports out_of_order_exec_mode for queues'
         def __get__(self):
             return bool((<cl_command_queue_properties> self.queue_properties) & CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE)
 
     property has_queue_profiling:
+        'test if this device supports profiling for queues'
         def __get__(self):
             return bool((<cl_command_queue_properties> self.queue_properties) & CL_QUEUE_PROFILING_ENABLE)
         
     property has_native_kernel:
+        'test if this device supports native python kernels'
         def __get__(self):
             cdef cl_int err_code
             cdef cl_device_exec_capabilities result
@@ -239,6 +307,7 @@ cdef class Device:
             return True if result & CL_EXEC_NATIVE_KERNEL else False 
 
     property vendor_id:
+        'return the vendor ID'
         def __get__(self):
             cdef cl_int err_code
             cdef cl_uint value = 0
@@ -247,6 +316,10 @@ cdef class Device:
             return value
         
     property max_compute_units:
+        '''
+        The number of parallel compute cores on the OpenCL device.  
+        The minimum value is 1.
+        '''
         def __get__(self):
             cdef cl_int err_code
             cdef cl_uint value = 0
@@ -255,6 +328,12 @@ cdef class Device:
             return value
 
     property max_work_item_dimensions:
+        '''
+        Maximum dimensions that specify the  global and local work-item IDs used 
+        by the data parallel execution model. (Refer to clEnqueueNDRangeKernel).
+          
+        The minimum value is 3.
+        '''
         def __get__(self):
             cdef cl_int err_code
             cdef cl_uint value = 0
@@ -263,6 +342,8 @@ cdef class Device:
             return value
 
     property max_clock_frequency:
+        '''
+        '''
         def __get__(self):
             cdef cl_int err_code
             cdef cl_uint value = 0
@@ -301,6 +382,7 @@ cdef class Device:
             err_code = clGetDeviceInfo(self.device_id, CL_DEVICE_GLOBAL_MEM_SIZE, sizeof(value), < void *>& value, NULL)
             if err_code != CL_SUCCESS: raise OpenCLException(err_code)
             return value
+        
     property max_mem_alloc_size:
         def __get__(self):
             cdef cl_int err_code
@@ -358,6 +440,11 @@ cdef class Device:
             return bool(value)
 
     property max_work_item_sizes:
+        '''
+        Maximum number of work-items that  can be specified in each dimension to  `opencl.Queue.enqueue_nd_range_kernel`.
+          
+        :returns: n entries, where n is the value returned by the query for  `opencl.Device.max_work_item_dimensions`
+        '''
         def __get__(self):
             cdef cl_int err_code
             cdef size_t dims = self.max_work_item_dimensions
@@ -469,7 +556,11 @@ cdef void pfn_event_notify(cl_event event, cl_int event_command_exec_status, voi
     
 
 cdef class Event:
-
+    '''
+    An event object can be used to track the execution status of a command.  The API calls that 
+    enqueue commands to a command-queue create a new event object that is returned in the event
+    argument.
+    '''
     QUEUED = CL_QUEUED
     SUBMITTED = CL_SUBMITTED
     RUNNING = CL_RUNNING
@@ -492,7 +583,13 @@ cdef class Event:
         return '<%s status=%r:%r>' % (self.__class__.__name__, status, self.STATUS_DICT[status])
     
     def wait(self):
+        '''
+        event.wait()
         
+        Waits on the host thread for commands identified by event objects in event_list to complete.  
+        A command is considered complete if its execution status is CL_COMPLETE or a negative value.  
+        
+        '''
         cdef cl_int err_code
         
         with nogil:
@@ -502,6 +599,9 @@ cdef class Event:
             raise OpenCLException(err_code)
         
     property status:
+        '''
+        the current status of the event.
+        '''
         def __get__(self):
             cdef cl_int err_code
             cdef cl_int status
@@ -514,7 +614,12 @@ cdef class Event:
             return status
         
     def add_callback(self, callback):
+        '''
+        event.add_callback(callback)
+        Registers a user callback function for on completion of the event.
         
+        :param callback: must be of the signature callback(event, status)
+        '''
         cdef cl_int err_code
 
         Py_INCREF(callback)
@@ -525,7 +630,10 @@ cdef class Event:
         
         
 cdef class UserEvent(Event):
-
+    '''
+    Creates a user event object.  User events allow applications to enqueue commands that wait on a 
+    user event to finish before the command is executed by the device.  
+    '''
     def __cinit__(self, context):
         
         cdef cl_int err_code
@@ -537,7 +645,9 @@ cdef class UserEvent(Event):
             raise OpenCLException(err_code)
         
     def complete(self):
-        
+        '''
+        Set this event status to complete.
+        '''
         cdef cl_int err_code
         
         err_code = clSetUserEventStatus(self.event_id, CL_COMPLETE)
@@ -551,6 +661,21 @@ clCreateKernel_errors = {
                          
                          }
 cdef class Program:
+    '''
+    
+    Create an opencl program.
+    
+    :param context: opencl.Context object.
+    :param source: program source to compile.
+    :param binaries: dict of pre-compiled binaries. of the form {device:bytes, ..}
+    :param devices: list of devices to compile on.
+    '''
+    
+    NONE = CL_BUILD_NONE
+    ERROR= CL_BUILD_ERROR
+    SUCCESS = CL_BUILD_SUCCESS
+    IN_PROGRESS = CL_BUILD_IN_PROGRESS
+    
     cdef cl_program program_id
     
     def __cinit__(self):
@@ -626,7 +751,7 @@ cdef class Program:
             
             
             
-    def build(self, devices=None, options=''):
+    def build(self, devices=None, options='', do_raise=True):
         
         cdef cl_int err_code
         cdef char * _options = options
@@ -638,6 +763,14 @@ cdef class Program:
         if err_code != CL_SUCCESS:
             raise OpenCLException(err_code)
 
+        cdef cl_build_status bld_status
+        cdef cl_int bld_status_
+        if do_raise:
+            for device, status in self.status.items():
+                bld_status_ = <cl_int> status
+                bld_status = <cl_build_status> bld_status_
+                if bld_status == CL_BUILD_ERROR:
+                    raise BuildError(self.logs[device], self.logs)
         return self
     
     property num_devices:
@@ -749,6 +882,29 @@ cdef class Program:
                 
             return dict(zip(self.devices, py_binaries))
             
+            
+    property status:
+        def __get__(self):
+            
+            statuses = []
+            cdef cl_build_status status
+            cdef cl_int err_code
+            cdef cl_device_id device_id
+            
+            for device in self.devices:
+                
+                device_id = (< Device > device).device_id
+
+                err_code = clGetProgramBuildInfo(self.program_id, device_id, CL_PROGRAM_BUILD_STATUS, sizeof(cl_build_status), &status, NULL)
+                 
+                if err_code != CL_SUCCESS: 
+                    raise OpenCLException(err_code)
+                
+                statuses.append(<cl_int> status)
+                
+            return dict(zip(self.devices, statuses))
+                
+            
     property logs:
         def __get__(self):
             
@@ -796,8 +952,13 @@ cdef class Program:
             
             return CyContext_Create(ctx)
         
+    def __getattr__(self, attr):
+        return self.kernel(attr)
+    
     def kernel(self, name):
-        
+        '''
+        Return a kernel object. 
+        '''
         cdef cl_int err_code
         cdef cl_kernel kernel_id
         cdef char * kernel_name = name
@@ -830,7 +991,7 @@ cdef class Program:
             devices = []
             
             for i in range(num_devices):
-                devices.append(DeviceIDAsPyDevice(device_list[i]))
+                devices.append(CyDevice_Create(device_list[i]))
                 
             free(device_list)
             
@@ -843,11 +1004,11 @@ cdef class Program:
 # 
 #===============================================================================
 
-cdef api cl_platform_id clPlatformFromPyPlatform(object py_platform):
+cdef api cl_platform_id CyPlatform_GetID(object py_platform):
     cdef Platform platform = < Platform > py_platform
     return platform.platform_id
 
-cdef api object clPlatformAs_PyPlatform(cl_platform_id platform_id):
+cdef api object CyPlatform_Create(cl_platform_id platform_id):
     cdef Platform platform = < Platform > Platform.__new__(Platform)
     platform.platform_id = platform_id
     return platform
@@ -863,7 +1024,7 @@ cdef api cl_device_id CyDevice_GetID(object py_device):
     cdef Device device = < Device > py_device
     return device.device_id
 
-cdef api object DeviceIDAsPyDevice(cl_device_id device_id):
+cdef api object CyDevice_Create(cl_device_id device_id):
     cdef Device device = < Device > Device.__new__(Device)
     device.device_id = device_id
     return device

@@ -2,7 +2,7 @@ import struct
 from opencl.errors import OpenCLException
 import opencl as cl
 import opencl.errors
-from opencl.type_formats import type_format, size_from_format
+from opencl.type_formats import type_format, size_from_format, ctype_from_format
 
 from _cl cimport * 
 from clgl cimport * 
@@ -219,6 +219,7 @@ def empty_gl(context, shape, ctype='B', gl_buffer=None):
     
     if isinstance(ctype, str):
         format = ctype
+        ctype = ctype_from_format(format)
     else:
         format = type_format(ctype)
 
@@ -273,7 +274,7 @@ def empty_gl(context, shape, ctype='B', gl_buffer=None):
     
     PyBuffer_FillContiguousStrides(buffer.ndim, buffer.shape, buffer.strides, buffer.itemsize, 'C')
     
-    return CyView_Create(buffer_id, buffer, 0)
+    return CyView_Create(buffer_id, buffer, ctype, 0)
 
 
 class acquire(object):
@@ -302,7 +303,6 @@ def enqueue_acquire_gl_objects(queue, *mem_objects, wait_on=()):
     if event_wait_list == < cl_event *> 1:
         raise Exception("One of the items in argument 'wait_on' is not a valid event")
 
-    print "mem_objects", mem_objects
     if len(mem_objects) == 1:
         if isinstance(mem_objects[0], (list, tuple)):
             mem_objects = mem_objects[0]

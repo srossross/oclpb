@@ -5,7 +5,7 @@ cdef api object CyMemoryObject_Create(cl_mem buffer_id)
 
 cdef api int CyView_GetBuffer(object view, Py_buffer* buffer)
     
-cdef api object CyView_Create(cl_mem buffer_id, Py_buffer* buffer, int incref)
+cdef api object CyView_Create(cl_mem buffer_id, Py_buffer* buffer, object ctype, int incref)
 
 cdef api int CyMemoryObject_Check(object memobj)
 
