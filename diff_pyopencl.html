@@ -1,0 +1,204 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Differences from PyOpenCL &mdash; Clyther v1.0.0 documentation</title>
+    <link rel="stylesheet" href="static/default.css" type="text/css" />
+    <link rel="stylesheet" href="static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="static/jquery.js"></script>
+    <script type="text/javascript" src="static/underscore.js"></script>
+    <script type="text/javascript" src="static/doctools.js"></script>
+    <link rel="top" title="Clyther v1.0.0 documentation" href="index.html" />
+    <link rel="next" title="C - api" href="api.html" />
+    <link rel="prev" title="Getting Started" href="getting_started.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="C - api"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="getting_started.html" title="Getting Started"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Clyther v1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="differences-from-pyopencl">
+<h1>Differences from PyOpenCL<a class="headerlink" href="#differences-from-pyopencl" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="import-opencl">
+<h2>import opencl<a class="headerlink" href="#import-opencl" title="Permalink to this headline">¶</a></h2>
+<p>PyOpenCL:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">pyopencl</span> <span class="kn">as</span> <span class="nn">cl</span>
+</pre></div>
+</div>
+<p>OpenCL for Python</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">opencl</span> <span class="kn">as</span> <span class="nn">cl</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="properties-and-flags">
+<h2>Properties and Flags<a class="headerlink" href="#properties-and-flags" title="Permalink to this headline">¶</a></h2>
+<p>In PyOpenCL one would would write:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">ctx</span> <span class="o">=</span> <span class="n">pyopencl</span><span class="o">.</span><span class="n">Context</span><span class="p">()</span>
+<span class="n">devices</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_info</span><span class="p">(</span><span class="n">pyopencl</span><span class="o">.</span><span class="n">context_info</span><span class="o">.</span><span class="n">DEVICES</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>OpenCL for Python:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">ctx</span> <span class="o">=</span> <span class="n">pyopencl</span><span class="o">.</span><span class="n">Context</span><span class="p">()</span>
+<span class="n">devices</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">devices</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="memoryobjects">
+<h2>MemoryObjects<a class="headerlink" href="#memoryobjects" title="Permalink to this headline">¶</a></h2>
+<p>OpenCL for Python does not require numpy and has no external dependencies. It only relies hevily on the memoryview object and ctypes data structures.</p>
+<p>The main memory object in OpenCL for Python is a <a class="reference internal" href="capi.html#opencl.DeviceMemoryView" title="opencl.DeviceMemoryView"><tt class="xref py py-class docutils literal"><span class="pre">opencl.DeviceMemoryView</span></tt></a>. a device memoryview supports slicing and copying.
+To create a view of device memory you can use <tt class="xref py py-func docutils literal"><span class="pre">opencl.from_host()</span></tt>  or <tt class="xref py py-func docutils literal"><span class="pre">opencl.empty()</span></tt></p>
+<p>example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">na</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">a</span> <span class="o">=</span>  <span class="n">opencl</span><span class="o">.</span><span class="n">from_host</span><span class="p">(</span><span class="n">na</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c"># and</span>
+<span class="n">b</span> <span class="o">=</span>  <span class="n">opencl</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">ctype</span><span class="o">=</span><span class="s">&#39;f&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The argument <cite>ctype</cite> may be a valid ctype or subclass from the ctypes module or a valid data format descriptor.</p>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt>ctypes module documentation.</dt>
+<dd><a class="reference external" href="http://docs.python.org/library/ctypes.html">http://docs.python.org/library/ctypes.html</a></dd>
+<dt>Examples of data format descriptions.</dt>
+<dd><a class="reference external" href="http://www.python.org/dev/peps/pep-3118/#examples-of-data-format-descriptions">http://www.python.org/dev/peps/pep-3118/#examples-of-data-format-descriptions</a></dd>
+</dl>
+</div>
+</div>
+<div class="section" id="kernels">
+<h2>Kernels<a class="headerlink" href="#kernels" title="Permalink to this headline">¶</a></h2>
+<p>Kernels may follow the ctypes convention. and define an <cite>argtypes</cite> attribute. <cite>argnames</cite> and <cite>__defaults__</cite> may also be defined.</p>
+<p>example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">program</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">Program</span><span class="p">(</span> <span class="s">&#39;&#39;&#39;__kernel void foo(__global *a, float b, int x) ... &#39;&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+
+<span class="n">foo</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">foo</span>
+<span class="n">foo</span><span class="o">.</span><span class="n">argnames</span> <span class="o">=</span> <span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="s">&#39;x&#39;</span>
+<span class="n">foo</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">global_memory</span><span class="p">(</span><span class="s">&#39;f&#39;</span><span class="p">),</span> <span class="n">cl</span><span class="o">.</span><span class="n">cl_float</span><span class="p">,</span> <span class="n">cl</span><span class="o">.</span><span class="n">cl_int</span>
+
+<span class="c">#global_work_size is either a function or sequence of integers.</span>
+<span class="n">foo</span><span class="o">.</span><span class="n">global_work_size</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">a</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">shape</span>
+
+<span class="c">#Equivalent to b=2.0, x=1</span>
+<span class="n">foo</span><span class="o">.</span><span class="n">__defaults__</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mi">1</span>
+
+<span class="c">#The following invocations of foo are all equivalent.</span>
+<span class="n">foo</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="n">cl_memory</span><span class="p">)</span>
+<span class="n">foo</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="n">cl_memory</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">foo</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">cl_memory</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">foo</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="n">cl_memory</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">global_work_size</span><span class="o">=</span><span class="p">[</span><span class="n">cl_memory</span><span class="o">.</span><span class="n">size</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="commandqueue">
+<h2>CommandQueue<a class="headerlink" href="#commandqueue" title="Permalink to this headline">¶</a></h2>
+<p>Can be referred to as <a class="reference internal" href="capi.html#opencl.Queue" title="opencl.Queue"><tt class="xref py py-class docutils literal"><span class="pre">opencl.Queue</span></tt></a>.</p>
+<p>all <cite>enqueue_*</cite> functions are now methods on the <a class="reference internal" href="capi.html#opencl.Queue" title="opencl.Queue"><tt class="xref py py-class docutils literal"><span class="pre">opencl.Queue</span></tt></a> class</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Differences from PyOpenCL</a><ul>
+<li><a class="reference internal" href="#import-opencl">import opencl</a></li>
+<li><a class="reference internal" href="#properties-and-flags">Properties and Flags</a></li>
+<li><a class="reference internal" href="#memoryobjects">MemoryObjects</a></li>
+<li><a class="reference internal" href="#kernels">Kernels</a></li>
+<li><a class="reference internal" href="#commandqueue">CommandQueue</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="getting_started.html"
+                        title="previous chapter">Getting Started</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="api.html"
+                        title="next chapter">C - api</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="sources/diff_pyopencl.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="C - api"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="getting_started.html" title="Getting Started"
+             >previous</a> |</li>
+        <li><a href="index.html">Clyther v1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Sean Ross-Ross.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>
