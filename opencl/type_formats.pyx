@@ -3,7 +3,27 @@ import _ctypes
 import struct
 import numpy as np
 import ctypes
+import string
 import copy_reg
+import pickle
+
+trans = None
+def cmp_formats(fmt1, fmt2):
+    global trans
+    
+    if fmt1 == fmt2:
+        return 0
+    
+    if trans is None:
+        trans = string.maketrans('','')
+    
+    fmt1 = fmt1.translate(trans, '<>!@')
+    fmt2 = fmt2.translate(trans, '<>!@')
+    
+    if fmt1 == fmt2:
+        return 0
+    
+    return -1
 
 def ctype_pickle_function(ctype):
     
@@ -13,14 +33,19 @@ def ctype_pickle_function(ctype):
     
     return (constructor, args, state, None, None)
 
+def ctype_pickle_disp(pickler, ctype):
+    pickler.save_reduce(obj=ctype, *ctype_pickle_function(ctype))
+    
 def register_ctypes_pickle():
     
 
     PyCSimpleType = type(_ctypes._SimpleCData)
     copy_reg.pickle(PyCSimpleType, ctype_pickle_function)
+    pickle.Pickler.dispatch[PyCSimpleType] = ctype_pickle_disp
     
     PyCArrayType = type(_ctypes.Array)
     copy_reg.pickle(PyCArrayType, ctype_pickle_function)
+    pickle.Pickler.dispatch[PyCArrayType] = ctype_pickle_disp
 
     
 register_ctypes_pickle()
@@ -38,12 +63,14 @@ def type_format(any_type):
             return any_type._type_
         elif issubclass(any_type, _ctypes.Array):
             return '(%i)%s' % (any_type._length_, type_format(any_type._type_))
-        elif issubclass(any_type, _ctypes.Structure):
+        elif issubclass(any_type, ctypes.Structure):
             type_list = ['%s:%s:' % (type_format(ctype), name) for name, ctype in any_type._fields_]
             return 'T{%s}' % (''.join(type_list))
         elif issubclass(any_type, _ctypes._Pointer):
             return '&%s' % (any_type._type_)
-        
+    else:
+        raise TypeError('object %r is not a class' % (any_type))
+#    print "issubclass(any_type, ctypes.Structure)", issubclass(any_type, ctypes.Structure)
     raise TypeError('Could not get type format from type %r' % (any_type))
 
 def is_complex_type(format):

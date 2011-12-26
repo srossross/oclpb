@@ -44,10 +44,6 @@ cdef void user_func(UserData user_data) with gil:
     args = user_data.args
     kwargs = user_data.kwargs
     
-#    print "user_data.args", user_data.args
-#    for i, arg in enumerate(user_data.args):
-#        print "arg", i, arg
-        
     function(*args, **kwargs)
     
     user_data.function = None
@@ -769,6 +765,17 @@ cdef class Queue:
         
         event = PyEvent_New(event_id)
         return event
+    
+    def __richcmp__(Queue self, other, op):
+        
+        if not isinstance(other, Queue):
+            return NotImplemented
+        
+        if op == 2:
+            return self.queue_id == CyQueue_GetID(other)
+        else:
+            return NotImplemented
+
 
 cdef api cl_uint _make_wait_list(wait_on, cl_event ** event_wait_list_ptr):
     if not wait_on:

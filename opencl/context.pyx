@@ -168,7 +168,7 @@ cdef class Context:
 
     
     def __repr__(self):
-        return '<opencl.Context num_devices=%i>' % (self.num_devices)
+        return '<%s num_devices=%i>' % (type(self).__name__, self.num_devices)
     
     property ref_count:
         'return opencl internal refrence count of this object'

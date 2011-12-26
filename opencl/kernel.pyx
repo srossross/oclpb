@@ -2,16 +2,16 @@
 import ctypes
 import _ctypes
 from opencl.errors import OpenCLException
-from opencl.cl_mem import MemoryObject
+from opencl.cl_mem import MemoryObject, DeviceMemoryView
 
 from inspect import isfunction
-from opencl.type_formats import refrence, ctype_from_format, type_format, cdefn
+from opencl.type_formats import refrence, ctype_from_format, type_format, cdefn, cmp_formats
 from _cl cimport * 
 from opencl.cl_mem import mem_layout
 
 from libc.stdlib cimport malloc, free
 from opencl.cl_mem cimport CyMemoryObject_GetID, CyMemoryObject_Check
-from cpython cimport PyObject, PyArg_VaParseTupleAndKeywords
+from cpython cimport PyObject, PyArg_VaParseTupleAndKeywords, Py_INCREF
 from opencl.copencl cimport CyProgram_Create, CyDevice_Check, CyDevice_GetID
 from opencl.context cimport CyContext_Create
 
@@ -23,10 +23,12 @@ class contextual_memory(object):
     Memory 'type' descriptor.
     '''
     qualifier = None
-    
-    def __init__(self, ctype=None, shape=None, flat=False):
+    is_const = False
+    def __init__(self, ctype=None, ndim=None, shape=None, flat=False, context=None):
+        self.context = context
         self._shape = tuple(shape) if shape else shape
         self.flat = flat
+        self.ndim = ndim
         
         if ctype is None:
             self.format = ctype
@@ -43,14 +45,20 @@ class contextual_memory(object):
     def __eq__(self, other):
         if not isinstance(other, type(self)):
             return False
-        if not self.format == other.format:
+        if self.format != other.format:
             return False
-#        if not self._shape == other._shape:
-#            return False
-        if not self.flat == other.flat:
+        if self.flat != other.flat:
             return False
         
+        if not self.flat:
+            if not self.ndim == other.ndim:
+                return False
+
+        
         return True
+    
+    def __getattr__(self, attr):
+        return getattr(self.ctype, attr)
     
     @property
     def size(self):
@@ -103,48 +111,79 @@ class contextual_memory(object):
         :param arg: must be a MemoryObject.
         '''
         if not CyMemoryObject_Check(arg):
-            raise TypeError("from_param expected a MemoryObject")
+            if self.context is None:
+                raise TypeError("contextual_memory requires attribute 'context' to be defined for this type of argumetn")
+            if not self.is_const:
+                if not all(device.host_unified_memory for device in self.context.devices):
+                    raise TypeError("A device in the context does not have 'host_unified_memory' can not call kernel with host memory.")
+                
+            arg = DeviceMemoryView.from_host(self.context, arg, copy=False)
         
         if self.format is not None and hasattr(arg, 'format'):
-            if self.format != arg.format:
+            if cmp_formats(self.format, arg.format):
                 raise TypeError("Expected buffer to be of type %r (got %r)" % (self.format, arg.format))
             
         cdef void * ptr
         
-        if arg.context.devices[0].driver_version == '1.0': #FIXME this should be better #sub-buffer is not supported
+        #FIXME: this should be better #sub-buffer is not supported
+        if arg.context.devices[0].driver_version == '1.0': 
             base = arg.base
             if CyMemoryObject_Check(base):
                 arg = base 
 
         ptr = CyMemoryObject_GetID(arg)
-        return ctypes.c_void_p(< size_t > ptr)
+        ctype_ptr = ctypes.c_void_p(< size_t > ptr)
+        ctype_ptr._cl_base = arg
+        return ctype_ptr
     
     def __repr__(self):
         if self._shape is None:
             return '<memory qualifier=%r format=%r>' % (self.qualifier, self.format)
         else:
             return '<memory qualifier=%r format=%r shape=%s>' % (self.qualifier, self.format, self._shape)
+
+    def __hash__(self):
+        return hash((self.qualifier, self.format, self.flat if self.flat else self.ndim))
+    
+    def _get_array_info(self, obj):
+        if isinstance(obj, MemoryObject):
+            return obj.array_info
+        elif isinstance(obj, local_memory):
+            return obj.local_info
+        else:
+            try:
+                view = memoryview(obj)
+                ar_inf = self.array_info(0, 0, 0, 0, 0, 0, 0, 0,)
+                
+                size = 1
+                for i in range(view.ndim):
+                    size *= view.shape[i]
+                    ar_inf[i] = view.shape[i]
+                    ar_inf[i + 4] = view.strides[i] / view.itemsize
+
+                ar_inf[3] = size
+                
+                return ar_inf
+            
+            except TypeError:
+                raise TypeError("Argument must be a cl.MemoryObject or support the new buffer protocol (got %r)" % (obj))
+                
+            
+        
+        
         
 class global_memory(contextual_memory):
     qualifier = '__global'
-    def __hash__(self):
-        return hash(('global_memory', self.format, self.flat))
 
 class constant_memory(contextual_memory):
     qualifier = '__constant'
-    
-    def __hash__(self):
-        return hash(('local_memory', self.format, self.flat))
-    
+    is_const = True
     @property
     def local_strides(self):
         return self.array_info(0, 0, 0, 0, 0, 0, 0, 0,)
     
 class local_memory(contextual_memory):
     qualifier = '__local'
-    
-    def __hash__(self):
-        return hash(('local_memory', self.format))
     
     @property
     def local_info(self):
@@ -417,7 +456,10 @@ cdef class Kernel:
         return '<Kernel %s nargs=%r>' % (self.name, self.nargs)
     
     def set_args(self, *args, **kwargs):
-        
+        '''
+        kernel.set_args(self, *args, **kwargs)
+        Set the arguments for this kernel
+        '''
         if self._argtypes is None:
             raise TypeError("argtypes must be set before calling ")
         
@@ -431,6 +473,8 @@ cdef class Kernel:
         cdef size_t tmp
         cdef void * arg_value
         cdef cl_mem mem_id
+        
+        cargs = {}
         for arg_index, (argtype, arg) in enumerate(zip(self._argtypes, arglist)):
             
             if isinstance(arg, local_memory):
@@ -439,11 +483,12 @@ cdef class Kernel:
             else:
                 try:
                     carg = argtype.from_param(arg)
-                except TypeError:
+                    cargs[argnames[arg_index]] = carg
+                except TypeError as err:
                     if self._argnames is None:
-                        raise TypeError("argument at pos %i expected type to be %r (got %r)" % (arg_index, argtype, arg))
+                        raise TypeError("argument at pos %i expected type to be %r (got %r) msg='%s'" % (arg_index, argtype, arg, err))
                     else:
-                        raise TypeError("argument %r (pos %i) expected type to be %r (got %r)" % (argnames[arg_index], arg_index, argtype, arg))
+                        raise TypeError("argument %r (pos %i) expected type to be %r (got %r) msg='%s'" % (argnames[arg_index], arg_index, argtype, arg, err))
                 
                 if not isinstance(carg, CData):
                     carg = argtype(arg)
@@ -456,11 +501,14 @@ cdef class Kernel:
             if err_code != CL_SUCCESS:
                 raise OpenCLException(err_code, set_kerne_arg_errors)
             
-        return arglist
+        #Keeping cargs alive until enqueue_nd_range_kernel in case cargs is a from_host memory object.
+        #Otherwise it will be garbage collected. 
+        return arglist, cargs
          
     def __call__(self, queue, *args, global_work_size=None, global_work_offset=None, local_work_size=None, wait_on=(), **kwargs):
         
-        arglist = self.set_args(*args, **kwargs)
+        arglist, cargs = self.set_args(*args, **kwargs)
+        
         
         if global_work_size is None:
             if isfunction(self.global_work_size):

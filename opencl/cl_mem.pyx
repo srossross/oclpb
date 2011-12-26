@@ -28,18 +28,36 @@ cdef extern from "Python.h":
     int PyObject_GetBuffer(object obj, Py_buffer * view, int flags)
     int PyObject_CheckBuffer(object obj)
     void PyBuffer_Release(Py_buffer * view)
+    
+    void PyEval_InitThreads()
+
+PyEval_InitThreads()
 
 
-cdef void pfn_notify_destroy_mem_object(cl_mem memobj, void * user_data) with gil:
+cdef class UserData:
+    cdef object function
+    cdef object args
+    cdef object kwargs
+
+cdef void pfn_notify_destroy_mem_object(cl_mem memobj, UserData user_data) with gil:
     '''
     Callback for memory destructor.
     '''
-    cdef object callback = (< object > user_data)
     
     mem = CyMemoryObject_Create(memobj)
-    callback(mem)
+
+    function = user_data.function
+    args = user_data.args
+    kwargs = user_data.kwargs
     
-    Py_DECREF(callback)
+    function(mem, *args, **kwargs)
+    
+    user_data.function = None
+    user_data.args = None
+    user_data.kwargs = None
+    
+    Py_DECREF(user_data)
+    return
 
 cdef class MemoryObject:
     '''
@@ -68,9 +86,9 @@ cdef class MemoryObject:
         self.buffer_id = NULL
     
     
-    def add_destructor_callback(self, callback):
+    def add_destructor_callback(self, callback, *args, **kwargs):
         '''
-        memobj.add_destructor_callback(callback)
+        memobj.add_destructor_callback(callback, *args, **kwargs)
         
         Registers a user callback function with a memory object.  Each call to 
         `add_destructor_callback` registers the specified user callback function on a 
@@ -83,15 +101,22 @@ cdef class MemoryObject:
         referenced by host_ptr, specified when the memory object is created and used as the storage bits 
         for the memory object, can be reused or freed.
         
-        :param callback: function with the signature callback(memobj) 
+        :param callback: function with the signature callback(memobj, *args, **kwargs) 
         '''
         Py_INCREF(callback)
         
-        cdef void * user_data = < void *> callback
+#        cdef void * user_data = < void *> callback
         
         cdef cl_int err_code
         
-        err_code = clSetMemObjectDestructorCallback(self.buffer_id, < void *> & pfn_notify_destroy_mem_object, user_data)
+        cdef UserData user_data = UserData()
+        user_data.function = callback
+        user_data.args = args
+        user_data.kwargs = kwargs
+
+        Py_INCREF(user_data)
+        
+        err_code = clSetMemObjectDestructorCallback(self.buffer_id, < void *> & pfn_notify_destroy_mem_object, <void*>user_data)
     
         if err_code != CL_SUCCESS:
             raise OpenCLException(err_code)
@@ -217,7 +242,10 @@ cdef class MemoryObject:
             else:
                 return CyMemoryObject_Create(param_value)
     
-    
+
+def mock_callback(mem, array):
+    pass
+
 cdef class DeviceMemoryView(MemoryObject):
     '''
     A buffer object stores a one-dimensional collection of elements.  Elements of a buffer object can 
@@ -226,6 +254,7 @@ cdef class DeviceMemoryView(MemoryObject):
     cdef Py_buffer * buffer    
     cdef object __weakref__
     cdef public object _host_pointer
+    cdef object _ctype
     
     def __cinit__(self):
         self.buffer = NULL
@@ -329,7 +358,7 @@ cdef class DeviceMemoryView(MemoryObject):
         result_buffer.internal = NULL
         result_buffer.suboffsets = NULL
         
-        return CyView_Create(buffer_id, result_buffer, 1)
+        return CyView_Create(buffer_id, result_buffer, self.ctype, 1)
         
         
     def map(self, queue, blocking=True, readable=True, writeable=True):
@@ -378,6 +407,7 @@ cdef class DeviceMemoryView(MemoryObject):
             mem_flags |= CL_MEM_COPY_HOST_PTR
         else:
             mem_flags |= CL_MEM_USE_HOST_PTR
+            
         if readable and writeable:
             mem_flags |= CL_MEM_READ_WRITE
         elif readable:
@@ -419,8 +449,14 @@ cdef class DeviceMemoryView(MemoryObject):
                 buffer.shape[i] = view.shape[i]
                 buffer.strides[i] = view.strides[i]
 
-            cy_buffer = CyView_Create(buffer_id, buffer, 0)
-            cy_buffer._host_pointer = host
+            cy_buffer = CyView_Create(buffer_id, buffer, None, 0)
+#            cy_buffer._host_pointer = host
+            
+            if not copy:
+                # This will keep the referenced array around until we are done with 
+                # the opencl memory
+                cy_buffer.add_destructor_callback(mock_callback, host)
+                
             return cy_buffer
         else:
             raise NotImplementedError("data must be contiguous")
@@ -452,7 +488,11 @@ cdef class DeviceMemoryView(MemoryObject):
                 strides[i] = strides[i] * step
                 
                 i += 1
+                
             else:
+                if arg < 0:
+                    arg = shape[i] + arg
+                
                 offset += arg * strides[i]
                 ndim -= 1
                 del strides[i]
@@ -474,7 +514,7 @@ cdef class DeviceMemoryView(MemoryObject):
             buffer.strides[i] = strides[i]
 
         if offset == 0:
-            return CyView_Create(self.buffer_id, buffer, 1)
+            return CyView_Create(self.buffer_id, buffer, self.ctype, 1)
 
         cdef cl_mem sub_buffer = NULL
         cdef cl_mem base = self._get_base()
@@ -491,9 +531,9 @@ cdef class DeviceMemoryView(MemoryObject):
         sub_buffer = clCreateSubBuffer(base, CL_MEM_READ_WRITE, CL_BUFFER_CREATE_TYPE_REGION, & buffer_create_info, & err_code)
 
         if err_code != CL_SUCCESS:
-            raise OpenCLException(err_code)
+            raise OpenCLException(err_code, msg='offset=%r; mem_size=%r; strides=%r; shape=%r' % (offset, mem_size, strides, shape))
         
-        return CyView_Create(sub_buffer, buffer, 0)
+        return CyView_Create(sub_buffer, buffer, self.ctype, 0)
     
     property size:
         'Total number of elements'
@@ -601,7 +641,9 @@ cdef class DeviceMemoryView(MemoryObject):
     
     property ctype:
         def __get__(self):
-            return ctype_from_format(self.format)
+            if self._ctype is None:
+                self._ctype = ctype_from_format(self.format)
+            return self._ctype
         
         
     def read(self, queue, out, wait_on=(), blocking=False):
@@ -654,7 +696,7 @@ cdef class DeviceMemoryView(MemoryObject):
             buffer.shape[i] = shape[i]
             buffer.strides[i] = strides[i]
         
-        return CyView_CreateSubclass(cls, buffer_id, buffer, 1) 
+        return CyView_CreateSubclass(cls, buffer_id, buffer, obj.ctype, 1) 
 
 def empty(context, shape, ctype='B'):
     '''
@@ -673,6 +715,7 @@ def empty(context, shape, ctype='B'):
     
     if isinstance(ctype, str):
         format = ctype
+        ctype = ctype_from_format(format)
     else:
         format = type_format(ctype)
 
@@ -704,7 +747,7 @@ def empty(context, shape, ctype='B'):
     
     PyBuffer_FillContiguousStrides(buffer.ndim, buffer.shape, buffer.strides, buffer.itemsize, 'C')
     
-    return CyView_Create(buffer_id, buffer, 0)
+    return CyView_Create(buffer_id, buffer, ctype, 0)
     
 cdef class MemoryViewMap:
     '''
@@ -1207,7 +1250,7 @@ def broadcast(DeviceMemoryView view, shape):
         if  buffer.shape[i] > 1:
             result_buffer.strides[noff + i] = buffer.strides[i] 
         
-    return CyView_Create(memobj, result_buffer, 1)
+    return CyView_Create(memobj, result_buffer, view.ctype, 1)
     
 def empty_image(context, shape, image_format):
     '''
@@ -1285,24 +1328,26 @@ cdef api int CyView_GetBuffer(object view, Py_buffer * buffer):
     return 0
 
     
-cdef api object CyView_Create(cl_mem buffer_id, Py_buffer * buffer, int incref):
+cdef api object CyView_Create(cl_mem buffer_id, Py_buffer * buffer, object ctype, int incref):
     cdef DeviceMemoryView dview = < DeviceMemoryView > DeviceMemoryView.__new__(DeviceMemoryView)
     if incref:
         clRetainMemObject(buffer_id)
         
     dview.buffer_id = buffer_id
     dview.buffer = buffer
+    dview._ctype = ctype
     
     return dview
 
-cdef api object CyView_CreateSubclass(object cls, cl_mem buffer_id, Py_buffer * buffer, int incref):
+cdef api object CyView_CreateSubclass(object cls, cl_mem buffer_id, Py_buffer * buffer, object ctype, int incref):
     cdef DeviceMemoryView dview = < DeviceMemoryView > cls.__new__(cls)
     if incref:
         clRetainMemObject(buffer_id)
         
     dview.buffer_id = buffer_id
     dview.buffer = buffer
-    
+    dview._ctype = ctype
+
     return dview
 
 cdef api Py_buffer * CyView_GetPyBuffer(object memobj):

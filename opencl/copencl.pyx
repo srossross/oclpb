@@ -670,6 +670,12 @@ cdef class Program:
     :param binaries: dict of pre-compiled binaries. of the form {device:bytes, ..}
     :param devices: list of devices to compile on.
     '''
+    
+    NONE = CL_BUILD_NONE
+    ERROR= CL_BUILD_ERROR
+    SUCCESS = CL_BUILD_SUCCESS
+    IN_PROGRESS = CL_BUILD_IN_PROGRESS
+    
     cdef cl_program program_id
     
     def __cinit__(self):
@@ -758,12 +764,12 @@ cdef class Program:
             raise OpenCLException(err_code)
 
         cdef cl_build_status bld_status
-        cdef size_t bld_status_
+        cdef cl_int bld_status_
         if do_raise:
             for device, status in self.status.items():
-                bld_status_ = <size_t> status
+                bld_status_ = <cl_int> status
                 bld_status = <cl_build_status> bld_status_
-                if bld_status != CL_BUILD_SUCCESS:
+                if bld_status == CL_BUILD_ERROR:
                     raise BuildError(self.logs[device], self.logs)
         return self
     
@@ -894,7 +900,7 @@ cdef class Program:
                 if err_code != CL_SUCCESS: 
                     raise OpenCLException(err_code)
                 
-                statuses.append(<size_t> status)
+                statuses.append(<cl_int> status)
                 
             return dict(zip(self.devices, statuses))
                 
