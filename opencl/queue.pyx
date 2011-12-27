@@ -613,8 +613,10 @@ cdef class Queue:
                     raise OpenCLException(err_code, msg=msg)
                 
                 work_group_size = kernel.work_group_size(self.device)
-
-                if work_group_size < reduce(lambda x, y: x * y, local_work_size):
+                prod_shape = 1
+                for d in range(local_work_size):
+                    prod_shape *= d
+                if work_group_size < prod_shape:
                     ps = '*'.join([str(x) for x in local_work_size])
                     msg = 'total workgroup size (%s) excceds maximum defined by "kernel.work_group_size(queue.device)" of %r' % (ps, work_group_size)
                     raise OpenCLException(err_code, msg=msg)

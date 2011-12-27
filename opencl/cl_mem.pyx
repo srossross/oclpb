@@ -328,7 +328,10 @@ cdef class DeviceMemoryView(MemoryObject):
         
     def reshape(self, shape):
         
-        if reduce(lambda a, b:a * b, shape, 1) != self.size:
+        size = 1
+        for d in shape: size *= d
+            
+        if size != self.size:
             raise ValueError("total size of new array must be unchanged")
         
         if not self.is_contiguous:

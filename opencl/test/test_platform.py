@@ -3,7 +3,7 @@ Created on Sep 27, 2011
 
 @author: sean
 '''
-
+from __future__ import print_function
 from opencl import get_platforms, Context, Queue, Program, DeviceMemoryView, empty
 from opencl import ContextProperties, global_memory, UserEvent, Event
 from opencl.kernel import parse_args
@@ -26,7 +26,7 @@ def setUpModule():
     DEVICE_TYPE = getattr(cl.Device, DEVICE_TYPE_ATTR)
     
     ctx = cl.Context(device_type=DEVICE_TYPE)
-    print ctx.devices
+    print(ctx.devices)
 
 
 source = """
@@ -142,33 +142,31 @@ class TestDevice(unittest.TestCase):
     def _test_device_properties(self):
         
         device = ctx.devices[0]
-        print 
-        print "device_type", device.device_type
-        print "name", device.name
-        print "has_image_support", device.has_image_support
-        print "has_native_kernel", device.has_native_kernel
-        print "max_compute_units", device.max_compute_units
-        print "max_work_item_dimension", device.max_work_item_dimensions
-        print "max_work_item_sizes", device.max_work_item_sizes
-        print "max_work_group_size", device.max_work_group_size
-        print "max_clock_frequency", device.max_clock_frequency, 'MHz'
-        print "address_bits", device.address_bits, 'bits'
-        print "max_read_image_args", device.max_read_image_args
-        print "max_write_image_args", device.max_write_image_args
-        print "max_image2d_shape", device.max_image2d_shape
-        print "max_image3d_shape", device.max_image3d_shape
-        print "max_parameter_size", device.max_parameter_size, 'bytes'
-        print "max_const_buffer_size", device.max_const_buffer_size, 'bytes'
-        print "has_local_mem", device.has_local_mem
-        print "local_mem_size", device.local_mem_size, 'bytes'
-        print "host_unified_memory", device.host_unified_memory
-        print "available", device.available
-        print "compiler_available", device.compiler_available
-        print "driver_version", device.driver_version
-        print "device_profile", device.profile
-        print "version", device.version
-        print "extensions", device.extensions
-        print 
+        print("device_type", device.device_type)
+        print("name", device.name)
+        print("has_image_support", device.has_image_support)
+        print("has_native_kernel", device.has_native_kernel)
+        print("max_compute_units", device.max_compute_units)
+        print("max_work_item_dimension", device.max_work_item_dimensions)
+        print("max_work_item_sizes", device.max_work_item_sizes)
+        print("max_work_group_size", device.max_work_group_size)
+        print("max_clock_frequency", device.max_clock_frequency, 'MHz')
+        print("address_bits", device.address_bits, 'bits')
+        print("max_read_image_args", device.max_read_image_args)
+        print("max_write_image_args", device.max_write_image_args)
+        print("max_image2d_shape", device.max_image2d_shape)
+        print("max_image3d_shape", device.max_image3d_shape)
+        print("max_parameter_size", device.max_parameter_size, 'bytes')
+        print("max_const_buffer_size", device.max_const_buffer_size, 'bytes')
+        print("has_local_mem", device.has_local_mem)
+        print("local_mem_size", device.local_mem_size, 'bytes')
+        print("host_unified_memory", device.host_unified_memory)
+        print("available", device.available)
+        print("compiler_available", device.compiler_available)
+        print("driver_version", device.driver_version)
+        print("device_profile", device.profile)
+        print("version", device.version)
+        print("extensions", device.extensions)
 
 
 class TestContext(unittest.TestCase):

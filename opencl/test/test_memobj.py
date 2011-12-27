@@ -3,6 +3,7 @@ Created on Dec 24, 2011
 
 @author: sean
 '''
+from __future__ import print_function
 from opencl import Platform, get_platforms, Context, Device, Queue, Program, DeviceMemoryView, empty
 from opencl import ContextProperties, global_memory, UserEvent, Event
 from opencl.kernel import parse_args
@@ -27,7 +28,7 @@ def setUpModule():
     DEVICE_TYPE = getattr(cl.Device, DEVICE_TYPE_ATTR)
     
     ctx = cl.Context(device_type=DEVICE_TYPE)
-    print ctx.devices
+    print(ctx.devices)
         
 class TestBuffer(unittest.TestCase):
     
