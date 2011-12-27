@@ -1,5 +1,8 @@
 
-from .copencl import Platform, get_platforms, Device, Program, UserEvent, Event
+from .copencl import Platform, get_platforms, Device
+from .program import Program
+from .event import UserEvent, Event
+
 from .context import Context, ContextProperties
 from .kernel import contextual_memory, global_memory, local_memory, constant_memory, Kernel
 from .queue import Queue
