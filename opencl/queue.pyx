@@ -306,174 +306,6 @@ cdef class Queue:
         if err_code != CL_SUCCESS:
             raise OpenCLException(err_code)
     
-#    def enqueue_read_buffer(self, buffer, host_destination, size_t offset=0, size=None, blocking=False, events=None):
-#        
-#        cdef cl_int err_code
-#        cdef Py_buffer view
-#
-#        cdef cl_bool blocking_read = 1 if blocking else 0
-#        cdef void * ptr = NULL
-#        cdef cl_uint num_events_in_wait_list = 0
-#        cdef cl_event * event_wait_list = NULL
-#        cdef Event event = Event()   
-#        cdef size_t cb   
-#        cdef cl_mem buffer_id = (< Buffer > buffer).buffer_id
-#
-#        if PyObject_GetBuffer(host_destination, & view, PyBUF_SIMPLE | PyBUF_ANY_CONTIGUOUS):
-#            raise ValueError("argument 'host_buffer' must be a readable buffer object")
-#        
-#        if size is None:
-#            cb = min(view.len, buffer.size)
-#            
-#        if view.len < size:
-#            raise Exception("destination (host) buffer is too small")
-#        elif buffer.size < size:
-#            raise Exception("source (device) buffer is too small")
-#        
-#        ptr = view.buf
-#        
-#        if events:
-#            num_events_in_wait_list = len(events)
-#            event_wait_list = < cl_event *> malloc(num_events_in_wait_list * sizeof(cl_event))
-#            
-#            for i in range(num_events_in_wait_list):
-#                tmp_event = < Event > events[i]
-#                event_wait_list[i] = tmp_event.event_id
-#            
-#        err_code = clEnqueueReadBuffer (self.queue_id, buffer_id,
-#                                        blocking_read, offset, cb, ptr,
-#                                        num_events_in_wait_list, event_wait_list, & event.event_id)
-#    
-#        if event_wait_list != NULL:
-#            free(event_wait_list)
-#        
-#        if err_code != CL_SUCCESS:
-#            raise OpenCLException(err_code)
-#
-#        if not blocking:
-#            return event
-#        
-#    def enqueue_map_buffer(self, buffer, blocking=False, size_t offset=0, size=None, events=None, read=True, write=True, format="B", itemsize=1):
-#        
-#        cdef void * host_buffer = NULL
-#        cdef cl_mem _buffer
-#        cdef cl_bool blocking_map = 1 if blocking else 0
-#        cdef cl_map_flags map_flags = 0
-#        cdef size_t cb = 0
-#        cdef cl_uint num_events_in_wait_list = 0
-#        cdef cl_event * event_wait_list = NULL
-#        cdef Event event
-#        cdef cl_int err_code
-#        
-#        if read:
-#            map_flags |= CL_MAP_READ
-#        if write:
-#            map_flags |= CL_MAP_WRITE
-#            
-#        
-#
-#        _buffer = (< Buffer > buffer).buffer_id
-#        
-#        if size is None:
-#            cb = buffer.size - offset
-#        else:
-#            cb = < size_t > size
-#            
-#            
-##        cdef Py_buffer * view = < Py_buffer *> malloc(sizeof(Py_buffer)) 
-##        
-##        cdef char * _format = < char *> format
-##        view.itemsize = itemsize
-##        
-##        if not view.itemsize:
-##            raise Exception()
-##        if (cb % view.itemsize) != 0:
-##            raise Exception("size-offset must be a multiple of itemsize of format %r (%i)" % (format, view.itemsize))
-#
-#        if events:
-#            num_events_in_wait_list = len(events)
-#            event_wait_list = < cl_event *> malloc(num_events_in_wait_list * sizeof(cl_event))
-#            
-#            for i in range(num_events_in_wait_list):
-#                tmp_event = < Event > events[i]
-#                event_wait_list[i] = tmp_event.event_id
-#                
-#        
-#        host_buffer = clEnqueueMapBuffer (self.queue_id, _buffer, blocking_map, map_flags,
-#                                          offset, cb, num_events_in_wait_list, event_wait_list,
-#                                          & event.event_id, & err_code)
-##        print "clEnqueueMapBuffer"
-#        
-#        
-#        if event_wait_list != NULL:
-#            free(event_wait_list)
-#        
-#        if err_code != CL_SUCCESS:
-#            raise OpenCLException(err_code)
-#
-#        if host_buffer == NULL:
-#            raise Exception("host buffer is null")
-#        
-#        if write:
-#            memview = < object > PyBuffer_FromReadWriteMemory(host_buffer, cb)
-#        else:
-#            memview = < object > PyBuffer_FromMemory(host_buffer, cb)
-#            
-##        view.buf = host_buffer
-##        view.len = cb
-##        view.readonly = 0 if write else 1
-##        view.format = _format
-##        view.ndim = 1
-##        view.shape = < Py_ssize_t *> malloc(sizeof(Py_ssize_t))
-##        view.shape[0] = cb / view.itemsize 
-##        view.strides = < Py_ssize_t *> malloc(sizeof(Py_ssize_t))
-##        view.strides[0] = 1
-##        view.suboffsets = < Py_ssize_t *> malloc(sizeof(Py_ssize_t))
-##        view.suboffsets[0] = 0
-##         
-##        view.internal = NULL 
-##         
-##        
-#        
-#        
-#        if not blocking:
-#            return (memview, event)
-#        else:
-#            return (memview, None)
-#        
-#    def enqueue_unmap(self, memobject, buffer, events=None,):
-#
-#        cdef void * mapped_ptr = NULL
-#        cdef cl_mem memobj = NULL 
-#        cdef cl_uint num_events_in_wait_list = 0
-#        cdef cl_event * event_wait_list = NULL
-#        cdef Event event = Event()
-#        
-#        cdef cl_int err_code
-#        memobj = (< Buffer > memobject).buffer_id
-#        cdef Py_ssize_t buffer_len
-#        
-#        PyObject_AsReadBuffer(< PyObject *> buffer, & mapped_ptr, & buffer_len)
-#
-#        if events:
-#            num_events_in_wait_list = len(events)
-#            event_wait_list = < cl_event *> malloc(num_events_in_wait_list * sizeof(cl_event))
-#            
-#            for i in range(num_events_in_wait_list):
-#                tmp_event = < Event > events[i]
-#                event_wait_list[i] = tmp_event.event_id
-#                
-#        err_code = clEnqueueUnmapMemObject(self.queue_id, memobj, mapped_ptr, num_events_in_wait_list,
-#                                        event_wait_list, & event.event_id)
-#        
-#        if event_wait_list != NULL:
-#            free(event_wait_list)
-#        
-#        if err_code != CL_SUCCESS:
-#            raise OpenCLException(err_code)
-#        
-#        return event
-    
     def enqueue_native_kernel(self, function, *args, **kwargs):
         '''
         queue.enqueue_native_kernel(function [, arg, ..., kwarg=, ...])
@@ -631,7 +463,19 @@ cdef class Queue:
         return PyEvent_New(event_id)
     
     def enqueue_copy_buffer(self, source, dest, size_t src_offset=0, size_t dst_offset=0, size_t size=0, wait_on=()):
+        '''
+        queue.enqueue_copy_buffer(source, dest, src_offset=0, dst_offset=0, size=0, wait_on=())
+                
+        Enqueues a command to copy a buffer object identified by source to another buffer object 
+        identified by dest.
         
+        :param source: memory object
+        :param dest:  memory object
+        :param src_offset: refers to the offset where to begin copying data from src
+        :param dst_offset: refers to the offset where to begin copying data into dest
+        :param size: number of bytes to copy
+        :param wait_on: a sequence of events to wait for before submitting this command. 
+        '''
         cdef cl_int err_code
         cdef cl_event event_id = NULL
         cdef cl_event * event_wait_list
@@ -654,7 +498,11 @@ cdef class Queue:
         return PyEvent_New(event_id)
 
     def enqueue_read_buffer(self, source, dest, size_t src_offset=0, size_t size=0, wait_on=(), cl_bool blocking_read=0):
+        '''
+        queue.enqueue_read_buffer(source, dest, offset=0, size=0, wait_on=(), blocking_read=False)
         
+        Read a buffer object to host memory.
+        '''
         cdef cl_int err_code
         cdef cl_event event_id = NULL
         cdef cl_event * event_wait_list
@@ -687,7 +535,13 @@ cdef class Queue:
         return PyEvent_New(event_id)
     
     def enqueue_write_buffer(self, source, dest, size_t src_offset=0, size_t size=0, wait_on=(), cl_bool blocking_read=0):
+        '''
+        queue.enqueue_read_buffer(source, dest, offset=0, size=0, wait_on=(), blocking_read=False)
         
+        Write host memory into a buffer object.
+        
+        
+        '''
         cdef cl_int err_code
         cdef cl_event event_id = NULL
         cdef cl_event * event_wait_list
@@ -728,6 +582,13 @@ cdef class Queue:
     def enqueue_copy_buffer_rect(self, source, dest, region, src_origin=(0, 0, 0), dst_origin=(0, 0, 0),
                                  size_t src_row_pitch=0, size_t src_slice_pitch=0,
                                  size_t dst_row_pitch=0, size_t dst_slice_pitch=0, wait_on=()):
+        '''
+        queue.enqueue_copy_buffer_rect(source, dest, region, src_origin=(0, 0, 0), dst_origin=(0, 0, 0),
+                                       src_row_pitch=0, src_slice_pitch=0,
+                                       dst_row_pitch=0, dst_slice_pitch=0, wait_on=())
+                                       
+        TODO: document this.
+        '''
         
         cdef cl_int err_code
         cdef cl_event event_id = NULL

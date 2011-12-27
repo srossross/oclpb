@@ -222,6 +222,13 @@ class _Undefined: pass
 
 def call_with_used_args(func, argnames, arglist):
     '''
+    Call a function with argument.but only the arguments with names found in 
+    `func.func_code.co_varnames`
+    
+    :param func: function to call
+    :param argnames: names of the arguments in `arglist` 
+    :param arglist: arguements to call with
+     
     '''
     func_args = func.func_code.co_varnames[:func.func_code.co_argcount]
     
@@ -281,6 +288,11 @@ def parse_args(name, args, kwargs, argnames, defaults):
 cdef class Kernel:
     '''
     openCl kernel object.
+    
+    A kernel object encapsulates a specific __kernel function declared in a 
+    program and the argument values to be used when executing this __kernel function.
+    
+    
     '''
     cdef cl_kernel kernel_id
     cdef object _argtypes 
@@ -292,6 +304,11 @@ cdef class Kernel:
     
     def __cinit__(self):
         self.kernel_id = NULL
+        self._argtypes = None
+        self._argnames = None
+        self.global_work_size = None
+        self.global_work_offset = None
+        self.local_work_size = None
 
     def __dealloc__(self):
         
@@ -301,13 +318,22 @@ cdef class Kernel:
         self.kernel_id = NULL
         
     def __init__(self):
-        self._argtypes = None
-        self._argnames = None
-        self.global_work_size = None
-        self.global_work_offset = None
-        self.local_work_size = None
-        
+        raise TypeError("kernel can not be constructed from python")
+    
     property argtypes:
+        '''
+        Assign a tuple of ctypes types to specify the argument types that the function accepts 
+        
+        len(argtypes) must equal kernel.nargs.
+        
+        It is now possible to put items in argtypes which are not ctypes types, but each item 
+        must have a from_param() method which returns a value usable as 
+        argument (integer, string, ctypes instance). This allows to define 
+        adapters that can adapt custom objects as function parameters.
+        
+        .. seealso:: http://docs.python.org/library/ctypes.html#type-conversions  
+        '''
+
         def __get__(self):
             return self._argtypes
         
@@ -317,6 +343,11 @@ cdef class Kernel:
                 raise TypeError("argtypes must have %i values (got %i)" % (self.nargs, len(self._argtypes)))
 
     property argnames:
+        '''
+        Get or set the argument names. 
+        len(argnames) must equal kernel.nargs  
+        '''
+        
         def __get__(self):
             return self._argnames
         
@@ -326,7 +357,7 @@ cdef class Kernel:
                 raise TypeError("argnames must have %i values (got %i)" % (self.nargs, len(self._argnames)))
             
     property nargs:
-        'Number of arguments that this '
+        'Number of arguments that this kernel takes'
         def __get__(self):
             cdef cl_int err_code
             cdef cl_uint nargs
