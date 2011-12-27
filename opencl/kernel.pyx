@@ -222,6 +222,13 @@ class _Undefined: pass
 
 def call_with_used_args(func, argnames, arglist):
     '''
+    Call a function with argument.but only the arguments with names found in 
+    `func.func_code.co_varnames`
+    
+    :param func: function to call
+    :param argnames: names of the arguments in `arglist` 
+    :param arglist: arguements to call with
+     
     '''
     func_args = func.func_code.co_varnames[:func.func_code.co_argcount]
     
@@ -281,6 +288,11 @@ def parse_args(name, args, kwargs, argnames, defaults):
 cdef class Kernel:
     '''
     openCl kernel object.
+    
+    A kernel object encapsulates a specific __kernel function declared in a 
+    program and the argument values to be used when executing this __kernel function.
+    
+    
     '''
     cdef cl_kernel kernel_id
     cdef object _argtypes 
@@ -292,6 +304,11 @@ cdef class Kernel:
     
     def __cinit__(self):
         self.kernel_id = NULL
+        self._argtypes = None
+        self._argnames = None
+        self.global_work_size = None
+        self.global_work_offset = None
+        self.local_work_size = None
 
     def __dealloc__(self):
         
@@ -301,13 +318,22 @@ cdef class Kernel:
         self.kernel_id = NULL
         
     def __init__(self):
-        self._argtypes = None
-        self._argnames = None
-        self.global_work_size = None
-        self.global_work_offset = None
-        self.local_work_size = None
-        
+        raise TypeError("kernel can not be constructed from python")
+    
     property argtypes:
+        '''
+        Assign a tuple of ctypes types to specify the argument types that the function accepts 
+        
+        len(argtypes) must equal kernel.nargs.
+        
+        It is now possible to put items in argtypes which are not ctypes types, but each item 
+        must have a from_param() method which returns a value usable as 
+        argument (integer, string, ctypes instance). This allows to define 
+        adapters that can adapt custom objects as function parameters.
+        
+        .. seealso:: http://docs.python.org/library/ctypes.html#type-conversions  
+        '''
+
         def __get__(self):
             return self._argtypes
         
@@ -317,6 +343,11 @@ cdef class Kernel:
                 raise TypeError("argtypes must have %i values (got %i)" % (self.nargs, len(self._argtypes)))
 
     property argnames:
+        '''
+        Get or set the argument names. 
+        len(argnames) must equal kernel.nargs  
+        '''
+        
         def __get__(self):
             return self._argnames
         
@@ -326,6 +357,7 @@ cdef class Kernel:
                 raise TypeError("argnames must have %i values (got %i)" % (self.nargs, len(self._argnames)))
             
     property nargs:
+        'Number of arguments that this kernel takes'
         def __get__(self):
             cdef cl_int err_code
             cdef cl_uint nargs
@@ -336,6 +368,7 @@ cdef class Kernel:
             return nargs
 
     property program:
+        'the program that this kernel was created in'
         def __get__(self):
             cdef cl_int err_code
             cdef cl_program program_id
@@ -347,6 +380,7 @@ cdef class Kernel:
             return CyProgram_Create(program_id)
 
     property context:
+        'The context this kernel was created with.'
         def __get__(self):
             cdef cl_int err_code
             cdef cl_context context_id
@@ -357,7 +391,14 @@ cdef class Kernel:
             return CyContext_Create(context_id)
 
     def work_group_size(self, device):
+        '''
+        kernel.work_group_size(device)
         
+        This provides a mechanism for the application to query the maximum 
+        work-group size that can be used to execute a kernel on a specific device 
+        given by device.  The OpenCL implementation uses the resource 
+        requirements of the kernel (register usage etc.) to determine what this workgroup size should be. 
+        '''
         if not CyDevice_Check(device):
             raise TypeError("expected argument to be a device")
         
@@ -372,7 +413,15 @@ cdef class Kernel:
         return value
 
     def preferred_work_group_size_multiple(self, device):
+        '''
+        kernel.preferred_work_group_size_multiple(device)
         
+        Returns the preferred multiple of workgroup size for launch.  This is a 
+        performance hint. Specifying a workgroup size that is not a multiple of the 
+        value returned by this query as the value of the local work size argument to 
+        clEnqueueNDRangeKernel will not fail to enqueue the kernel for execution 
+        unless the work-group size specified is larger than the device maximum.
+        '''
         if not CyDevice_Check(device):
             raise TypeError("expected argument to be a device")
         
@@ -387,7 +436,14 @@ cdef class Kernel:
         return value
 
     def private_mem_size(self, device):
+        '''
+        kernel.private_mem_size(device)
         
+        Returns the minimum amount of private  memory, in bytes, used by each workitem in the kernel.  This value may 
+        include any private memory needed by  an implementation to execute the kernel,
+        including that used by the language  built-ins and variable declared inside the 
+        kernel with the __private qualifier.
+        '''
         if not CyDevice_Check(device):
             raise TypeError("expected argument to be a device")
         
@@ -402,6 +458,16 @@ cdef class Kernel:
         return value
 
     def local_mem_size(self, device):
+        '''
+        kernel.local_mem_size(device)
+        
+        Returns the amount of local memory in bytes being used by a kernel. This
+        includes local memory that may be needed by an implementation to execute 
+        the kernel, variables declared inside the  kernel with the __local address 
+        qualifier and local memory to be  allocated for arguments to the kernel 
+        declared as pointers with the __local address qualifier and whose size is 
+        specified with clSetKernelArg
+        '''
         
         if not CyDevice_Check(device):
             raise TypeError("expected argument to be a device")
@@ -417,7 +483,11 @@ cdef class Kernel:
         return value
 
     def compile_work_group_size(self, device):
+        '''
+        kernel.compile_work_group_size(device)
         
+        Returns the work-group size specified by the __attribute__((reqd_work_group_size(X, Y, Z))) qualifier.
+        '''
         if not CyDevice_Check(device):
             raise TypeError("expected argument to be a device")
         
@@ -433,6 +503,8 @@ cdef class Kernel:
 
 
     property name:
+        'The name of this kernel'
+        
         def __get__(self):
             cdef cl_int err_code
             cdef size_t nbytes
@@ -506,7 +578,11 @@ cdef class Kernel:
         return arglist, cargs
          
     def __call__(self, queue, *args, global_work_size=None, global_work_offset=None, local_work_size=None, wait_on=(), **kwargs):
+        '''
+        kernel(queue, *args, global_work_size=None, global_work_offset=None, local_work_size=None, wait_on=(), **kwargs)
         
+        Set a kernels args and enqueue an nd_range_kernel to the queue.
+        '''
         arglist, cargs = self.set_args(*args, **kwargs)
         
         

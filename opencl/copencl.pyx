@@ -54,9 +54,9 @@ cpdef get_platforms():
 
 cdef class Platform:
     '''
-    opencl.Platform not constructable
+    opencl.Platform not constructible.
     
-    use  opencl.get_platforms() to get a list of 
+    Use  opencl.get_platforms() to get a list of connected platoforms.
     '''
     cdef cl_platform_id platform_id
     
@@ -172,6 +172,15 @@ cdef class Platform:
             return NotImplemented
 
 cdef class Device:
+    '''
+    A device is a collection of compute units.  A command-queue is used to queue 
+    commands to a device.  Examples of commands include executing kernels, or reading and writing 
+    memory objects. 
+    
+    OpenCL devices typically correspond to a GPU, a multi-core CPU, and other 
+    processors such as DSPs and the Cell/B.E. processor.
+    
+    '''
     DEFAULT = CL_DEVICE_TYPE_DEFAULT
     ALL = CL_DEVICE_TYPE_ALL
     CPU = CL_DEVICE_TYPE_CPU
@@ -343,6 +352,7 @@ cdef class Device:
 
     property max_clock_frequency:
         '''
+        return the clock frequency. 
         '''
         def __get__(self):
             cdef cl_int err_code
@@ -669,6 +679,9 @@ cdef class Program:
     :param source: program source to compile.
     :param binaries: dict of pre-compiled binaries. of the form {device:bytes, ..}
     :param devices: list of devices to compile on.
+    
+    To get a kernel do `program.name` or `program.kernel('name')`.
+    
     '''
     
     NONE = CL_BUILD_NONE
@@ -752,6 +765,13 @@ cdef class Program:
             
             
     def build(self, devices=None, options='', do_raise=True):
+        '''
+
+        Builds (compiles & links) a program executable from the program source or binary for all the 
+        devices or a specific device(s) in the OpenCL context associated with program.  
+        
+        OpenCL allows  program executables to be built using the source or the binary.
+        '''
         
         cdef cl_int err_code
         cdef char * _options = options
@@ -774,6 +794,7 @@ cdef class Program:
         return self
     
     property num_devices:
+        'number of devices to build on'
         def __get__(self):
             
             cdef cl_int err_code
@@ -799,6 +820,7 @@ cdef class Program:
         
 
     property source:
+        'get the source code used to build this program'
         def __get__(self):
             
             cdef cl_int err_code
@@ -819,6 +841,8 @@ cdef class Program:
             return src
 
     property binary_sizes:
+        'return a dict of device:binary_size for each device associated with this program'
+
         def __get__(self):
             
             cdef cl_int err_code
@@ -842,6 +866,11 @@ cdef class Program:
             return size_list
         
     property binaries:
+        '''
+        return a dict of {device:bytes} for each device associated with this program
+        
+        Binaries may be used in a program constructor.
+        '''
         def __get__(self):
             
             sizes = self.binary_sizes
@@ -884,6 +913,17 @@ cdef class Program:
             
             
     property status:
+        '''
+        return a dict of {device:int} for each device associated with this program.
+        
+        Valid statuses:
+        
+         * Program.NONE
+         * Program.ERROR
+         * Program.SUCCESS
+         * Program.IN_PROGRESS
+
+        '''
         def __get__(self):
             
             statuses = []
@@ -906,6 +946,12 @@ cdef class Program:
                 
             
     property logs:
+        '''
+        get the build logs for each device.
+        
+        return a dict of {device:str} for each device associated with this program.
+
+        '''
         def __get__(self):
             
             logs = []
@@ -940,6 +986,7 @@ cdef class Program:
                 
         
     property context:
+        'get the context associated with this program'
         def __get__(self):
             
             cdef cl_int err_code
@@ -973,6 +1020,7 @@ cdef class Program:
         return KernelAsPyKernel(kernel_id)
 
     property devices:
+        'returns a list of devices associate with this program.'
         def __get__(self):
             
             cdef cl_int err_code
