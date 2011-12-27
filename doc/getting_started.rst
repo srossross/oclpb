@@ -17,8 +17,8 @@ Only OpenCL!
 Download
 --------------------
 
-* `Download from stable version from PyPi <http://pypi.python.org/pypi/oclpb>_`
-* `Or Download the latest from GitHub <https://github.com/srossross/oclpb/tags>_`
+* `Download from stable version from PyPi <http://pypi.python.org/pypi/oclpb>`_
+* `Or Download the latest from GitHub <https://github.com/srossross/oclpb/tags>`_
 
 Build
 --------
