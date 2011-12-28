@@ -1,11 +1,15 @@
 from inspect import isclass
 import _ctypes
-import struct
-import numpy as np
+
+try: 
+    import copy_reg as copyreg
+except ImportError:
+    import copyreg
+        
 import ctypes
-import string
-import copy_reg
 import pickle
+import string
+import struct
 
 trans = None
 def cmp_formats(fmt1, fmt2):
@@ -18,7 +22,7 @@ def cmp_formats(fmt1, fmt2):
         return 0
     
     if trans is None:
-        trans = string.maketrans('','')
+        trans = string.maketrans('', '')
     
     fmt1 = fmt1.translate(trans, '<>!@')
     fmt2 = fmt2.translate(trans, '<>!@')
@@ -42,12 +46,14 @@ def ctype_pickle_disp(pickler, ctype):
 def register_ctypes_pickle():
 
     PyCSimpleType = type(_ctypes._SimpleCData)
-    copy_reg.pickle(PyCSimpleType, ctype_pickle_function)
-    pickle.Pickler.dispatch[PyCSimpleType] = ctype_pickle_disp
+    copyreg.pickle(PyCSimpleType, ctype_pickle_function)
     
     PyCArrayType = type(_ctypes.Array)
-    copy_reg.pickle(PyCArrayType, ctype_pickle_function)
-    pickle.Pickler.dispatch[PyCArrayType] = ctype_pickle_disp
+    copyreg.pickle(PyCArrayType, ctype_pickle_function)
+    
+    if hasattr(pickle.Pickler, 'dispatch'):
+        pickle.Pickler.dispatch[PyCSimpleType] = ctype_pickle_disp
+        pickle.Pickler.dispatch[PyCArrayType] = ctype_pickle_disp
 
     
 register_ctypes_pickle()
@@ -285,6 +291,7 @@ def _size_list_from_format(format):
     i = 0 
     sizes = []
     while i < len(format):
+        
         char = format[i]
         
         if char in struct_types:

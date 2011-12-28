@@ -12,11 +12,17 @@ from opencl.cl_mem import mem_layout
 from libc.stdlib cimport malloc, free
 from opencl.cl_mem cimport CyMemoryObject_GetID, CyMemoryObject_Check
 from cpython cimport PyObject, PyArg_VaParseTupleAndKeywords, Py_INCREF
-from opencl.copencl cimport CyProgram_Create, CyDevice_Check, CyDevice_GetID
+from opencl.copencl cimport CyDevice_Check, CyDevice_GetID
 from opencl.context cimport CyContext_Create
 
 from cpython cimport PyBuffer_FillContiguousStrides
 CData = _ctypes._SimpleCData.__base__
+
+def get_code(function):
+    if hasattr(function, 'func_code'):
+        return function.func_code
+    else:
+        return function.__code__
 
 class contextual_memory(object):
     '''
@@ -230,7 +236,9 @@ def call_with_used_args(func, argnames, arglist):
     :param arglist: arguements to call with
      
     '''
-    func_args = func.func_code.co_varnames[:func.func_code.co_argcount]
+    
+    code = get_code(func)
+    func_args = code.co_varnames[:code.co_argcount]
     
     if argnames is None:
         args = arglist
@@ -367,17 +375,17 @@ cdef class Kernel:
             
             return nargs
 
-    property program:
-        'the program that this kernel was created in'
-        def __get__(self):
-            cdef cl_int err_code
-            cdef cl_program program_id
-
-            err_code = clGetKernelInfo(self.kernel_id, CL_KERNEL_PROGRAM, sizeof(cl_program), & program_id, NULL)
-            if err_code != CL_SUCCESS: raise OpenCLException(err_code)
-            
-            
-            return CyProgram_Create(program_id)
+#    property program:
+#        'the program that this kernel was created in'
+#        def __get__(self):
+#            cdef cl_int err_code
+#            cdef cl_program program_id
+#
+#            err_code = clGetKernelInfo(self.kernel_id, CL_KERNEL_PROGRAM, sizeof(cl_program), & program_id, NULL)
+#            if err_code != CL_SUCCESS: raise OpenCLException(err_code)
+#            
+#            
+#            return CyProgram_Create(program_id)
 
     property context:
         'The context this kernel was created with.'
@@ -519,7 +527,7 @@ cdef class Kernel:
             if err_code != CL_SUCCESS: raise OpenCLException(err_code)
             
             name[nbytes] = 0
-            cdef str pyname = name
+            pyname = name.decode('UTF-8')
             free(name)
             
             return pyname

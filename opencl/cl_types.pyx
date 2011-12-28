@@ -96,7 +96,10 @@ class cl_vector(array_type):
         return self._type_
 
 
-import copy_reg
+try:
+    import copy_reg as copyreg 
+except: #Python3
+    import copyreg 
 
 def pickle_cl_vector(vector_obj):
     constructor = cl_vector
@@ -106,7 +109,7 @@ def pickle_cl_vector(vector_obj):
     return (constructor, args, state, None, None)
 
     
-copy_reg.pickle(cl_vector, pickle_cl_vector)
+copyreg.pickle(cl_vector, pickle_cl_vector)
             
     
 
