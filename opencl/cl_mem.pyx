@@ -13,11 +13,7 @@ from cpython cimport Py_buffer, PyBUF_SIMPLE, PyBUF_STRIDES, PyBUF_ND, PyBUF_FOR
 
 from _cl cimport * 
 from opencl.context cimport CyContext_GetID, CyContext_Create, CyContext_Check
-from opencl.queue cimport CyQueue_GetID, CyQueue_Create
-
-
-#cdef extern from "cstring":
-#    char * strcpy (char * destination, char * source)
+import sys
 
 mem_layout = ctypes.c_size_t * 8
     
@@ -116,7 +112,7 @@ cdef class MemoryObject:
 
         Py_INCREF(user_data)
         
-        err_code = clSetMemObjectDestructorCallback(self.buffer_id, < void *> & pfn_notify_destroy_mem_object, <void*>user_data)
+        err_code = clSetMemObjectDestructorCallback(self.buffer_id, < void *> & pfn_notify_destroy_mem_object, < void *> user_data)
     
         if err_code != CL_SUCCESS:
             raise OpenCLException(err_code)
@@ -298,15 +294,15 @@ cdef class DeviceMemoryView(MemoryObject):
             return self.buffer.readonly
         
     property itemsize:
-        'Is size of each element'
+        'size of each element'
         def __get__(self):
             return self.buffer.itemsize
         
     property format:
-        'Is ctype format of the elements'
+        'ctype format of the elements'
         def __get__(self):
             if self.buffer.format != NULL:
-                return str(self.buffer.format)
+                return self.buffer.format.decode('UTF-8')
             else:
                 return "B"
         
@@ -371,6 +367,9 @@ cdef class DeviceMemoryView(MemoryObject):
         enqueues a command to map a region of the buffer object given by buffer into the host address 
         space and returns a pointer to this mapped region.
         '''
+        
+        from opencl.queue import MemoryViewMap
+        
         cdef cl_map_flags flags = 0
         
         if readable: 
@@ -701,6 +700,14 @@ cdef class DeviceMemoryView(MemoryObject):
         
         return CyView_CreateSubclass(cls, buffer_id, buffer, obj.ctype, 1) 
 
+def is_string(obj):
+
+    if sys.version_info.major < 3:
+        import __builtin__ as builtins
+        return isinstance(obj, (str, builtins.unicode))
+    else:
+        return isinstance(obj, (str,))
+        
 def empty(context, shape, ctype='B'):
     '''
     empty(context, shape, ctype='B') -> view
@@ -716,7 +723,7 @@ def empty(context, shape, ctype='B'):
     
     cdef cl_int err_code
     
-    if isinstance(ctype, str):
+    if is_string(ctype):
         format = ctype
         ctype = ctype_from_format(format)
     else:
@@ -735,6 +742,10 @@ def empty(context, shape, ctype='B'):
     cdef Py_buffer * buffer = < Py_buffer *> malloc(sizeof(Py_buffer))
     
     buffer.format = < char *> malloc(len(format) + 1)
+    
+    if is_string(format):
+        format = format.encode()
+        
     cdef char * tmp = < char *> format
     strcpy(buffer.format, tmp)
     buffer.readonly = 0
@@ -752,93 +763,7 @@ def empty(context, shape, ctype='B'):
     
     return CyView_Create(buffer_id, buffer, ctype, 0)
     
-cdef class MemoryViewMap:
-    '''
-    context manager for mapping and unmapping buffers.
-    '''
-    
-    cdef cl_command_queue command_queue
-#    cdef DeviceMemoryView dview
-    cdef public object dview
-    
-    cdef cl_bool blocking_map
-    cdef cl_map_flags map_flags
-    cdef size_t offset
-    cdef size_t cb
-    cdef void * bytes 
-        
-    def __init__(self, queue, dview, cl_bool blocking_map, cl_map_flags map_flags):
-        
-        self.dview = weakref.ref(dview)
-        
-        self.command_queue = CyQueue_GetID(queue)
-        
-        self.blocking_map = blocking_map
-        self.map_flags = map_flags
-    
-    def __enter__(self):
-        cdef void * bytes 
-        cdef cl_uint num_events_in_wait_list = 0
-        cdef cl_event * event_wait_list = NULL
-        
-        cdef cl_int err_code
-        
-        cdef cl_mem memobj = CyMemoryObject_GetID(self.dview())
-        cdef size_t mem_size = self.dview().mem_size
-        with nogil:
-            bytes = clEnqueueMapBuffer(self.command_queue, memobj,
-                                       self.blocking_map, self.map_flags, 0, mem_size,
-                                       num_events_in_wait_list, event_wait_list, NULL,
-                                       & err_code)
-         
-        if err_code != CL_SUCCESS:
-            raise OpenCLException(err_code)
-        
-        self.bytes = bytes
-        return memoryview(self)
 
-    def __exit__(self, *args):
-
-        cdef cl_int err_code 
-        
-        cdef cl_mem memobj = (< DeviceMemoryView > self.dview()).buffer_id
-        
-        err_code = clEnqueueUnmapMemObject(self.command_queue, memobj, self.bytes, 0, NULL, NULL)
-        
-        clEnqueueBarrier(self.command_queue)
-        
-        if err_code != CL_SUCCESS:
-            raise OpenCLException(err_code)
-        
-        
-    def __getbuffer__(self, Py_buffer * view, int flags):
-        view.len = self.cb
-        
-        cdef Py_buffer buffer
-        
-        CyView_GetBuffer(self.dview(), & buffer)
-        
-        cdef cl_mem memobj = CyMemoryObject_GetID(self.dview())
-        writable = bool(self.map_flags & CL_MAP_WRITE)
-
-        view.readonly = 0 if writable else 1 
-        
-
-        view.format = buffer.format
-        view.ndim = buffer.ndim
-        view.shape = buffer.shape
-        view.itemsize = buffer.itemsize
-        view.internal = NULL
-        view.strides = buffer.strides
-        view.suboffsets = NULL
-        
-#        cdef size_t offset = self.dview().offset 
-        
-        view.buf = self.bytes
-        
-    def __releasebuffer__(self, Py_buffer * view):
-        pass
-    
 cdef class ImageFormat:
     '''
     '''
@@ -968,7 +893,7 @@ cdef class ImageFormat:
         
         cdef ImageFormat fmt
         
-        if not isinstance(format, str):
+        if not is_string(format):
             format = type_format(format)
         
         for cl_order, order in cls._CHANNEL_ORDER_CTYPE_MAP.items():
@@ -1080,7 +1005,7 @@ cdef class Image(MemoryObject):
     property format:
         def __get__(self):
             if self.buffer.format != NULL:
-                return str(self.buffer.format)
+                return self.buffer.format.decode('UTF-8')
             else:
                 return "B"
         
@@ -1100,6 +1025,8 @@ cdef class Image(MemoryObject):
 
     def map(self, queue, blocking=True, readonly=False):
         
+        from opencl.queue import ImageMap 
+        
         cdef cl_map_flags flags = CL_MAP_READ
         
         if not readonly: 
@@ -1109,104 +1036,6 @@ cdef class Image(MemoryObject):
             
         return ImageMap(queue, self, blocking_map, flags)
 
-cdef class ImageMap:
-    
-    cdef cl_command_queue command_queue
-#    cdef DeviceMemoryView dview
-    cdef public object dview
-    
-    cdef cl_bool blocking_map
-    cdef cl_map_flags map_flags
-    cdef size_t offset
-    cdef size_t image_row_pitch
-    cdef size_t image_slice_pitch
-    cdef void * bytes
-        
-    def __init__(self, queue, dview, cl_bool blocking_map, cl_map_flags map_flags):
-        
-        self.dview = weakref.ref(dview)
-        
-        self.command_queue = CyQueue_GetID(queue)
-        
-        self.blocking_map = blocking_map
-        self.map_flags = map_flags
-    
-    def __enter__(self):
-        cdef void * bytes 
-        cdef cl_uint num_events_in_wait_list = 0
-        cdef cl_event * event_wait_list = NULL
-        
-        cdef cl_int err_code
-        
-        cdef cl_mem memobj = CyMemoryObject_GetID(self.dview())
-        cdef size_t origin[3]
-        cdef size_t region[3]
-        cdef size_t image_row_pitch
-        cdef size_t image_slice_pitch
-
-        cdef Py_buffer buffer
-        CyImage_GetBuffer(self.dview(), & buffer)
-        
-        origin[0] = 0
-        origin[1] = 0
-        origin[2] = 0
-            
-        region[0] = buffer.shape[0]
-        region[1] = buffer.shape[1]
-        region[2] = 1
-        
-        if buffer.ndim == 3:
-            region[2] = buffer.shape[2]
-        
-        bytes = clEnqueueMapImage(self.command_queue, memobj, self.blocking_map, self.map_flags,
-                                  origin, region, & image_row_pitch, & image_slice_pitch,
-                                  num_events_in_wait_list, event_wait_list, NULL,
-                                  & err_code)
-        
-        if err_code != CL_SUCCESS:
-            raise OpenCLException(err_code)
-        
-        self.bytes = bytes
-        
-        self.image_row_pitch = image_row_pitch
-        self.image_slice_pitch = image_slice_pitch
-
-        return memoryview(self)
-    
-
-    def __exit__(self, *args):
-
-        cdef cl_int err_code
-        
-        cdef cl_mem memobj = (< DeviceMemoryView > self.dview()).buffer_id
-        
-        err_code = clEnqueueUnmapMemObject(self.command_queue, memobj, self.bytes, 0, NULL, NULL)
-        clEnqueueBarrier(self.command_queue)
-        
-        if err_code != CL_SUCCESS:
-            raise OpenCLException(err_code)
-        
-    def __getbuffer__(self, Py_buffer * view, int flags):
-        cdef Py_buffer buffer
-        
-        CyImage_GetBuffer(self.dview(), & buffer)
-        
-        writable = bool(self.map_flags & CL_MAP_WRITE)
-
-        view.readonly = 0 if writable else 1 
-        
-        view.format = buffer.format
-        view.ndim = buffer.ndim
-        view.shape = buffer.shape
-        view.itemsize = buffer.itemsize
-        view.internal = NULL
-        view.strides = buffer.strides
-        view.suboffsets = NULL
-        
-        view.buf = self.bytes
-        
-    def __releasebuffer__(self, Py_buffer * view):
-        pass
 
 def broadcast(DeviceMemoryView view, shape):
     if not isinstance(view, DeviceMemoryView):
@@ -1298,9 +1127,15 @@ def empty_image(context, shape, image_format):
     
     format = image_format.format
     buffer.format = < char *> malloc(len(format) + 1)
-    cdef char * tmp = < char *> format
+    
+    if isinstance(format, str):
+        bytes_format = format.encode()
+        
+    cdef char * tmp = < char *> bytes_format
+    
     strcpy(buffer.format, tmp)
     buffer.readonly = 0
+    
     buffer.itemsize = size_from_format(format)
     buffer.ndim = len(shape)
     

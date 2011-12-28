@@ -9,7 +9,7 @@ from _cl cimport *
 
 from opencl.copencl cimport CyDevice_Create, CyDevice_Check, CyDevice_GetID
 from opencl.context cimport CyContext_GetID, CyContext_Create, CyContext_Check
-from opencl.kernel cimport KernelFromPyKernel, KernelAsPyKernel
+from opencl.kernel cimport KernelAsPyKernel
 
 clCreateKernel_errors = {}
 
@@ -59,8 +59,9 @@ cdef class Program:
         
         
         if source is not None:
+            byte_source = source.encode()
+            strings = byte_source
             
-            strings = source
             self.program_id = clCreateProgramWithSource(ctx, 1, & strings, NULL, & err_code)
             
             if err_code != CL_SUCCESS:
@@ -117,7 +118,10 @@ cdef class Program:
         '''
         
         cdef cl_int err_code
-        cdef char * _options = options
+        
+        str_options = options.encode()
+        cdef char * _options = str_options
+        
         cdef cl_uint num_devices = 0
         cdef cl_device_id * device_list = NULL
         
@@ -181,7 +185,8 @@ cdef class Program:
             if err_code != CL_SUCCESS: raise OpenCLException(err_code)
             
             src[src_len] = 0
-            return src
+            
+            return src.decode('UTF-8')
 
     property binary_sizes:
         'return a dict of device:binary_size for each device associated with this program'
@@ -323,7 +328,7 @@ cdef class Program:
                     raise OpenCLException(err_code)
                 
                 logstr[log_len] = 0
-                logs.append(logstr)
+                logs.append(logstr.decode('UTF-8'))
                 
             return dict(zip(self.devices, logs))
                 
@@ -351,7 +356,8 @@ cdef class Program:
         '''
         cdef cl_int err_code
         cdef cl_kernel kernel_id
-        cdef char * kernel_name = name
+        str_name = name.encode()
+        cdef char * kernel_name = str_name
         
         kernel_id = clCreateKernel(self.program_id, kernel_name, & err_code)
     

@@ -252,10 +252,10 @@ class TestBuffer(unittest.TestCase):
         
         new_view = view[:, 0]
         
-        self.assertEqual(new_view.ndim, 1)
-        self.assertEqual(new_view.shape, (3,))
+        self.assertEqual(new_view.ndim, a[:, 0].ndim)
+        self.assertEqual(new_view.shape, a[:, 0].shape)
         self.assertEqual(new_view.base_offset, 0)
-        self.assertEqual(new_view.strides, (8,))
+        self.assertEqual(new_view.strides, a[:, 0].strides)
 
         with new_view.map(queue) as buf:
             b = np.asarray(buf)

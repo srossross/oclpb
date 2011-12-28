@@ -291,6 +291,7 @@ def _size_list_from_format(format):
     i = 0 
     sizes = []
     while i < len(format):
+        
         char = format[i]
         
         if char in struct_types:

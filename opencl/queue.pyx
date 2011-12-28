@@ -1,16 +1,18 @@
 
 from opencl.errors import OpenCLException
+import weakref
 
 from _cl cimport * 
 
-from cpython cimport PyObject, Py_DECREF, Py_INCREF, PyBuffer_IsContiguous, PyBuffer_FillContiguousStrides
 from libc.stdlib cimport malloc, free 
+from cpython cimport PyObject, Py_DECREF, Py_INCREF, PyBuffer_IsContiguous, PyBuffer_FillContiguousStrides
 from cpython cimport Py_buffer, PyBUF_SIMPLE, PyBUF_STRIDES, PyBUF_ND, PyBUF_FORMAT, PyBUF_INDIRECT, PyBUF_WRITABLE
 
-from opencl.copencl cimport CyDevice_GetID, CyDevice_Create, PyEvent_New, cl_eventFrom_PyEvent, PyEvent_Check 
+from opencl.copencl cimport CyDevice_GetID, CyDevice_Create 
+from opencl.event cimport PyEvent_New, cl_eventFrom_PyEvent, PyEvent_Check 
 from opencl.context cimport CyContext_GetID, CyContext_Create, CyContext_Check
 from opencl.kernel cimport KernelFromPyKernel
-from opencl.cl_mem cimport CyMemoryObject_GetID, CyMemoryObject_Check, CyView_GetPyBuffer
+from opencl.cl_mem cimport CyMemoryObject_GetID, CyMemoryObject_Check, CyView_GetPyBuffer, CyView_GetBuffer, CyImage_GetBuffer
 
 
 cdef extern from "Python.h":
@@ -639,6 +641,187 @@ cdef class Queue:
         else:
             return NotImplemented
 
+cdef class MemoryViewMap:
+    '''
+    context manager for mapping and unmapping buffers.
+    '''
+    
+    cdef cl_command_queue command_queue
+    cdef public object dview
+    
+    cdef cl_bool blocking_map
+    cdef cl_map_flags map_flags
+    cdef size_t offset
+    cdef size_t cb
+    cdef void * bytes 
+        
+    def __init__(self, queue, dview, cl_bool blocking_map, cl_map_flags map_flags):
+        
+        self.dview = weakref.ref(dview)
+        
+        self.command_queue = CyQueue_GetID(queue)
+        
+        self.blocking_map = blocking_map
+        self.map_flags = map_flags
+    
+    def __enter__(self):
+        cdef void * bytes 
+        cdef cl_uint num_events_in_wait_list = 0
+        cdef cl_event * event_wait_list = NULL
+        
+        cdef cl_int err_code
+        
+        cdef cl_mem memobj = CyMemoryObject_GetID(self.dview())
+        cdef size_t mem_size = self.dview().mem_size
+        with nogil:
+            bytes = clEnqueueMapBuffer(self.command_queue, memobj,
+                                       self.blocking_map, self.map_flags, 0, mem_size,
+                                       num_events_in_wait_list, event_wait_list, NULL,
+                                       & err_code)
+         
+        if err_code != CL_SUCCESS:
+            raise OpenCLException(err_code)
+        
+        self.bytes = bytes
+        return memoryview(self)
+
+    def __exit__(self, *args):
+
+        cdef cl_int err_code 
+        
+        cdef cl_mem memobj = CyMemoryObject_GetID(self.dview())
+        
+        err_code = clEnqueueUnmapMemObject(self.command_queue, memobj, self.bytes, 0, NULL, NULL)
+        
+        clEnqueueBarrier(self.command_queue)
+        
+        if err_code != CL_SUCCESS:
+            raise OpenCLException(err_code)
+        
+        
+    def __getbuffer__(self, Py_buffer * view, int flags):
+        view.len = self.cb
+        
+        cdef Py_buffer buffer
+        
+        CyView_GetBuffer(self.dview(), & buffer)
+        
+        cdef cl_mem memobj = CyMemoryObject_GetID(self.dview())
+        writable = bool(self.map_flags & CL_MAP_WRITE)
+
+        view.readonly = 0 if writable else 1 
+        
+
+        view.format = buffer.format
+        view.ndim = buffer.ndim
+        view.shape = buffer.shape
+        view.itemsize = buffer.itemsize
+        view.internal = NULL
+        view.strides = buffer.strides
+        view.suboffsets = NULL
+        
+        view.buf = self.bytes
+        
+    def __releasebuffer__(self, Py_buffer * view):
+        pass
+    
+cdef class ImageMap:
+    
+    cdef cl_command_queue command_queue
+    cdef public object dview
+    
+    cdef cl_bool blocking_map
+    cdef cl_map_flags map_flags
+    cdef size_t offset
+    cdef size_t image_row_pitch
+    cdef size_t image_slice_pitch
+    cdef void * bytes
+        
+    def __init__(self, queue, dview, cl_bool blocking_map, cl_map_flags map_flags):
+        
+        self.dview = weakref.ref(dview)
+        
+        self.command_queue = CyQueue_GetID(queue)
+        
+        self.blocking_map = blocking_map
+        self.map_flags = map_flags
+    
+    def __enter__(self):
+        cdef void * bytes 
+        cdef cl_uint num_events_in_wait_list = 0
+        cdef cl_event * event_wait_list = NULL
+        
+        cdef cl_int err_code
+        
+        cdef cl_mem memobj = CyMemoryObject_GetID(self.dview())
+        cdef size_t origin[3]
+        cdef size_t region[3]
+        cdef size_t image_row_pitch
+        cdef size_t image_slice_pitch
+
+        cdef Py_buffer buffer
+        CyImage_GetBuffer(self.dview(), & buffer)
+        
+        origin[0] = 0
+        origin[1] = 0
+        origin[2] = 0
+            
+        region[0] = buffer.shape[0]
+        region[1] = buffer.shape[1]
+        region[2] = 1
+        
+        if buffer.ndim == 3:
+            region[2] = buffer.shape[2]
+        
+        bytes = clEnqueueMapImage(self.command_queue, memobj, self.blocking_map, self.map_flags,
+                                  origin, region, & image_row_pitch, & image_slice_pitch,
+                                  num_events_in_wait_list, event_wait_list, NULL,
+                                  & err_code)
+        
+        if err_code != CL_SUCCESS:
+            raise OpenCLException(err_code)
+        
+        self.bytes = bytes
+        
+        self.image_row_pitch = image_row_pitch
+        self.image_slice_pitch = image_slice_pitch
+
+        return memoryview(self)
+    
+
+    def __exit__(self, *args):
+
+        cdef cl_int err_code
+        
+        cdef cl_mem memobj = CyMemoryObject_GetID(self.dview())
+        
+        err_code = clEnqueueUnmapMemObject(self.command_queue, memobj, self.bytes, 0, NULL, NULL)
+        clEnqueueBarrier(self.command_queue)
+        
+        if err_code != CL_SUCCESS:
+            raise OpenCLException(err_code)
+        
+    def __getbuffer__(self, Py_buffer * view, int flags):
+        cdef Py_buffer buffer
+        
+        CyImage_GetBuffer(self.dview(), & buffer)
+        
+        writable = bool(self.map_flags & CL_MAP_WRITE)
+
+        view.readonly = 0 if writable else 1 
+        
+        view.format = buffer.format
+        view.ndim = buffer.ndim
+        view.shape = buffer.shape
+        view.itemsize = buffer.itemsize
+        view.internal = NULL
+        view.strides = buffer.strides
+        view.suboffsets = NULL
+        
+        view.buf = self.bytes
+        
+    def __releasebuffer__(self, Py_buffer * view):
+        pass
 
 cdef api cl_uint _make_wait_list(wait_on, cl_event ** event_wait_list_ptr):
     if not wait_on:
