@@ -1,8 +1,10 @@
 from opencl.errors import OpenCLException
 
-from _cl cimport * 
+from _cl cimport *
+ 
 from opencl.copencl cimport CyPlatform_GetID, CyPlatform_Create
 from opencl.copencl cimport CyDevice_GetID, CyDevice_Create
+
 from libc.stdlib cimport malloc, free 
 
 from cpython cimport Py_INCREF 

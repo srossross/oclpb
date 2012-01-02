@@ -16,7 +16,7 @@ from cpython cimport Py_buffer, PyBUF_SIMPLE, PyBUF_STRIDES, PyBUF_ND, PyBUF_FOR
 from opencl.cl_mem cimport CyView_Create, CyMemoryObject_Check, CyMemoryObject_GetID, CyImageFormat_New, CyImage_New
 from opencl.context cimport CyContext_GetID, CyContext_Check
 from opencl.queue cimport CyQueue_GetID, CyQueue_Check, _make_wait_list
-from opencl.copencl cimport PyEvent_New
+from opencl.event cimport PyEvent_New
 
 opencl.errors.all_opencl_errors.update(
     {

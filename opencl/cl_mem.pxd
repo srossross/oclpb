@@ -17,3 +17,5 @@ cdef api object CyImage_New(cl_mem buffer_id)
 
 
 cdef api Py_buffer* CyView_GetPyBuffer(object memobj)
+
+cdef api int CyImage_GetBuffer(object view, Py_buffer * buffer)

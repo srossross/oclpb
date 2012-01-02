@@ -37,10 +37,10 @@ else:
     ext_modules = [extension(name, '.c') for name in pyx_extention_names]
 
 setup(
-    name='OpenCL',
+    name='OpenCL for Python',
     cmdclass=cmdclass,
     ext_modules=ext_modules,
-    version='0.2.0',
+    version='0.3.0',
     author='Enthought, Inc.',
     author_email='srossross@enthought.com',
     url='srossross.github.com/oclpb',
@@ -54,7 +54,8 @@ setup(
         Operating System :: OS Independent
         Operating System :: POSIX
         Operating System :: Unix
-        Programming Language :: Python
+        Programming Language :: Python :: 2
+        Programming Language :: Python :: 3
         Programming Language :: OpenCL
         Topic :: Scientific/Engineering
         Topic :: Software Development

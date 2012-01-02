@@ -1,24 +1,31 @@
 from inspect import isclass
 import _ctypes
-import struct
-import numpy as np
+
+try: 
+    import copy_reg as copyreg
+except ImportError:
+    import copyreg
+        
 import ctypes
-import string
-import copy_reg
 import pickle
+import string
+import struct
 
 trans = None
 def cmp_formats(fmt1, fmt2):
+    '''
+    compare formats without endianness.
+    '''
     global trans
     
     if fmt1 == fmt2:
         return 0
     
     if trans is None:
-        trans = string.maketrans('','')
+        trans = string.maketrans('', '')
     
-    fmt1 = fmt1.translate(trans, '<>!@')
-    fmt2 = fmt2.translate(trans, '<>!@')
+    fmt1 = str(fmt1).translate( trans, '<>!@')
+    fmt2 = str(fmt2).translate(trans, '<>!@')
     
     if fmt1 == fmt2:
         return 0
@@ -37,15 +44,16 @@ def ctype_pickle_disp(pickler, ctype):
     pickler.save_reduce(obj=ctype, *ctype_pickle_function(ctype))
     
 def register_ctypes_pickle():
-    
 
     PyCSimpleType = type(_ctypes._SimpleCData)
-    copy_reg.pickle(PyCSimpleType, ctype_pickle_function)
-    pickle.Pickler.dispatch[PyCSimpleType] = ctype_pickle_disp
+    copyreg.pickle(PyCSimpleType, ctype_pickle_function)
     
     PyCArrayType = type(_ctypes.Array)
-    copy_reg.pickle(PyCArrayType, ctype_pickle_function)
-    pickle.Pickler.dispatch[PyCArrayType] = ctype_pickle_disp
+    copyreg.pickle(PyCArrayType, ctype_pickle_function)
+    
+    if hasattr(pickle.Pickler, 'dispatch'):
+        pickle.Pickler.dispatch[PyCSimpleType] = ctype_pickle_disp
+        pickle.Pickler.dispatch[PyCArrayType] = ctype_pickle_disp
 
     
 register_ctypes_pickle()
@@ -54,6 +62,9 @@ def complex_type_format(any_type):
     pass
 
 def type_format(any_type):
+    '''
+    return a format string from a ctype.
+    '''
     if isclass(any_type):
         if issubclass(any_type, float):
             return 'f'
@@ -74,16 +85,32 @@ def type_format(any_type):
     raise TypeError('Could not get type format from type %r' % (any_type))
 
 def is_complex_type(format):
+    '''
+    check if format is complex.
+    '''
+
     return format in (list(struct_types) + ['ff', 'dd', 'ii'])
 
 def is_pointer(format):
+    '''
+    check if format is a pointer.
+    '''
     return format.startswith('&')
 
 def derefrence(format):
+    '''
+    return a format string that is the data-type pointed 
+    to by `format`. 
+    '''
+
     assert format.startswith('&')
     return format[1:]
 
 def refrence(format):
+    '''
+    return a format string that is a pointer to the data-type.
+    of `format`. 
+    '''
 #    assert format.startswith('&')
     return '&' + format
 
@@ -137,6 +164,9 @@ struct_type_map = {
                    }
 
 def cdefn(simple_format):
+    '''
+    return a c definition string from a simple type format. 
+    '''
     if simple_format[0] in '<>!@':
         return cdefn(simple_format[1:])
     if is_pointer(simple_format):
@@ -206,6 +236,9 @@ def _ctype_from_format(format, struct_name='T'):
     return fields
 
 def ctype_from_format(format, struct_name='T'):
+    '''
+    get a ctype object from a type format string.
+    '''
     ctype_lst = _ctype_from_format(format, struct_name=struct_name)
     if len(ctype_lst) == 0:
         raise Exception("invalid type format %r" % format)
@@ -215,7 +248,9 @@ def ctype_from_format(format, struct_name='T'):
         raise NotImplementedError("type format %r" % format)
 
 def descriptor_from_format(format):
-    
+    '''
+    returns a numpy type sdescriptor from a format string.
+    '''
     i = 0 
     fields = []
     while i < len(format):
@@ -250,10 +285,13 @@ def descriptor_from_format(format):
     return fields
 
 def _size_list_from_format(format):
-    
+    '''
+    internal
+    '''
     i = 0 
     sizes = []
     while i < len(format):
+        
         char = format[i]
         
         if char in struct_types:
@@ -289,6 +327,9 @@ def _size_list_from_format(format):
     return sizes
             
 def size_from_format(format):
+    '''
+    Get the size in bytes of from the format representing a ctype
+    '''
     return sum(_size_list_from_format(format))
 
 
