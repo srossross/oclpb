@@ -56,7 +56,6 @@ setup(
         Operating System :: Unix
         Programming Language :: Python :: 2
         Programming Language :: Python :: 3
-        Programming Language :: OpenCL
         Topic :: Scientific/Engineering
         Topic :: Software Development
         Topic :: Software Development :: Libraries
