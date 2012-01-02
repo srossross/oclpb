@@ -19,3 +19,25 @@ from_host = DeviceMemoryView.from_host
 from .cl_types import *
 
 CommandQueue = Queue
+
+
+def get_include():
+    '''
+    Return the directory that contains the OpenCL for Python \*.h header files.
+    
+    Extension modules that need to compile against OpenCL for Python should use this
+    function to locate the appropriate include directory.
+    
+    Notes
+    -----
+    When using ``distutils``, for example in ``setup.py``.
+    ::
+    
+        import opencl as cl
+        ...
+        Extension('extension_name', ...
+                include_dirs=[cl.get_include()])
+
+    '''
+    from os.path import dirname
+    return dirname(__file__)
