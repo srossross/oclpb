@@ -23,7 +23,7 @@
     <script type="text/javascript" src="static/underscore.js"></script>
     <script type="text/javascript" src="static/doctools.js"></script>
     <link rel="top" title="Clyther v1.0.0 documentation" href="index.html" />
-    <link rel="next" title="C - api" href="api.html" />
+    <link rel="next" title="OpenCL for Python API" href="api.html" />
     <link rel="prev" title="Getting Started" href="getting_started.html" /> 
   </head>
   <body>
@@ -37,7 +37,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="api.html" title="C - api"
+          <a href="api.html" title="OpenCL for Python API"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="getting_started.html" title="Getting Started"
@@ -80,7 +80,7 @@
 <div class="section" id="memoryobjects">
 <h2>MemoryObjects<a class="headerlink" href="#memoryobjects" title="Permalink to this headline">¶</a></h2>
 <p>OpenCL for Python does not require numpy and has no external dependencies. It only relies hevily on the memoryview object and ctypes data structures.</p>
-<p>The main memory object in OpenCL for Python is a <a class="reference internal" href="capi.html#opencl.DeviceMemoryView" title="opencl.DeviceMemoryView"><tt class="xref py py-class docutils literal"><span class="pre">opencl.DeviceMemoryView</span></tt></a>. a device memoryview supports slicing and copying.
+<p>The main memory object in OpenCL for Python is a <a class="reference internal" href="api.html#opencl.DeviceMemoryView" title="opencl.DeviceMemoryView"><tt class="xref py py-class docutils literal"><span class="pre">opencl.DeviceMemoryView</span></tt></a>. a device memoryview supports slicing and copying.
 To create a view of device memory you can use <tt class="xref py py-func docutils literal"><span class="pre">opencl.from_host()</span></tt>  or <tt class="xref py py-func docutils literal"><span class="pre">opencl.empty()</span></tt></p>
 <p>example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">na</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
@@ -127,8 +127,8 @@ To create a view of device memory you can use <tt class="xref py py-func docutil
 </div>
 <div class="section" id="commandqueue">
 <h2>CommandQueue<a class="headerlink" href="#commandqueue" title="Permalink to this headline">¶</a></h2>
-<p>Can be referred to as <a class="reference internal" href="capi.html#opencl.Queue" title="opencl.Queue"><tt class="xref py py-class docutils literal"><span class="pre">opencl.Queue</span></tt></a>.</p>
-<p>all <cite>enqueue_*</cite> functions are now methods on the <a class="reference internal" href="capi.html#opencl.Queue" title="opencl.Queue"><tt class="xref py py-class docutils literal"><span class="pre">opencl.Queue</span></tt></a> class</p>
+<p>Can be referred to as <a class="reference internal" href="api.html#opencl.Queue" title="opencl.Queue"><tt class="xref py py-class docutils literal"><span class="pre">opencl.Queue</span></tt></a>.</p>
+<p>all <cite>enqueue_*</cite> functions are now methods on the <a class="reference internal" href="api.html#opencl.Queue" title="opencl.Queue"><tt class="xref py py-class docutils literal"><span class="pre">opencl.Queue</span></tt></a> class</p>
 </div>
 </div>
 
@@ -155,7 +155,7 @@ To create a view of device memory you can use <tt class="xref py py-func docutil
                         title="previous chapter">Getting Started</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="api.html"
-                        title="next chapter">C - api</a></p>
+                        title="next chapter">OpenCL for Python API</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="sources/diff_pyopencl.txt"
@@ -188,7 +188,7 @@ To create a view of device memory you can use <tt class="xref py py-func docutil
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="api.html" title="C - api"
+          <a href="api.html" title="OpenCL for Python API"
              >next</a> |</li>
         <li class="right" >
           <a href="getting_started.html" title="Getting Started"
