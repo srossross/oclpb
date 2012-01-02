@@ -45,7 +45,7 @@ setup(
     name='opencl-for-python',
     cmdclass=cmdclass,
     ext_modules=ext_modules,
-    version='0.3.1',
+    version='0.3.2',
     author='Enthought, Inc.',
     author_email='srossross@enthought.com',
     url='http://srossross.github.com/oclpb',
