@@ -1,11 +1,11 @@
 
 from _cl cimport * 
 
-cdef extern from "OpenCL/cl_gl_ext.h":
+cdef extern from "clgl_compat.h":
     enum gl_context_properties:
         CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE
 
-cdef extern from "OpenGL/gl.h":
+
     void * CGLGetCurrentContext()
     void * CGLGetShareGroup(void *)
     
@@ -54,7 +54,7 @@ cdef extern from "OpenGL/gl.h":
                 GL_RGBA32UI_EXT, GL_RGBA16F, GL_RGBA16F_ARB, GL_RGBA32F, GL_RGBA32F_ARB
 
 
-cdef extern from "OpenCL/cl_gl.h":
+    #cl_gl.h
     
     cl_mem clCreateFromGLBuffer(cl_context, cl_mem_flags, unsigned, cl_int *)
     

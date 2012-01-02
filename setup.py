@@ -75,4 +75,5 @@ setup(
     license='BSD',
     packages=find_packages(),
     platforms=["Windows", "Linux", "Mac OS-X", "Unix", "Solaris"],
+    package_data={'opencl': ['*.h']}
 )
