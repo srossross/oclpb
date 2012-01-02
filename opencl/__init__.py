@@ -11,10 +11,10 @@ from .cl_mem import DeviceMemoryView, empty
 from .cl_mem import mem_layout, broadcast
 from .cl_mem import empty_image, Image, ImageFormat
 from .errors import OpenCLException
+import opencl.clgl as gl
 
 from_host = DeviceMemoryView.from_host
 
-#import clgl as gl
 
 from .cl_types import *
 

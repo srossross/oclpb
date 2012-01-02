@@ -1,6 +1,7 @@
 
 import ctypes
 import _ctypes
+import sys
 from opencl.errors import OpenCLException
 from opencl.cl_mem import MemoryObject, DeviceMemoryView
 
@@ -18,11 +19,21 @@ from opencl.context cimport CyContext_Create
 from cpython cimport PyBuffer_FillContiguousStrides
 CData = _ctypes._SimpleCData.__base__
 
+def is_string(obj):
+
+    if sys.version_info.major < 3:
+        import __builtin__ as builtins
+        return isinstance(obj, (str, builtins.unicode))
+    else:
+        return isinstance(obj, (str,))
+
 def get_code(function):
     if hasattr(function, 'func_code'):
         return function.func_code
     else:
         return function.__code__
+
+DEBUG = False
 
 class contextual_memory(object):
     '''
@@ -40,7 +51,7 @@ class contextual_memory(object):
             self.format = ctype
             self.ctype = ctype
             
-        elif isinstance(ctype, str):
+        elif is_string(ctype):
             self.format = ctype
             self.ctype = ctype_from_format(ctype)
             
@@ -540,6 +551,7 @@ cdef class Kernel:
         kernel.set_args(self, *args, **kwargs)
         Set the arguments for this kernel
         '''
+        global DEBUG
         if self._argtypes is None:
             raise TypeError("argtypes must be set before calling ")
         
@@ -565,6 +577,7 @@ cdef class Kernel:
                     carg = argtype.from_param(arg)
                     cargs[argnames[arg_index]] = carg
                 except TypeError as err:
+                    if DEBUG: raise
                     if self._argnames is None:
                         raise TypeError("argument at pos %i expected type to be %r (got %r) msg='%s'" % (arg_index, argtype, arg, err))
                     else:

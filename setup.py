@@ -37,7 +37,7 @@ else:
     ext_modules = [extension(name, '.c') for name in pyx_extention_names]
 
 setup(
-    name='OpenCL',
+    name='OpenCL for Python',
     cmdclass=cmdclass,
     ext_modules=ext_modules,
     version='0.1.1',

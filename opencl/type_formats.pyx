@@ -24,8 +24,8 @@ def cmp_formats(fmt1, fmt2):
     if trans is None:
         trans = string.maketrans('', '')
     
-    fmt1 = fmt1.translate(trans, '<>!@')
-    fmt2 = fmt2.translate(trans, '<>!@')
+    fmt1 = str(fmt1).translate( trans, '<>!@')
+    fmt2 = str(fmt2).translate(trans, '<>!@')
     
     if fmt1 == fmt2:
         return 0
