@@ -40,7 +40,7 @@ setup(
     name='OpenCL for Python',
     cmdclass=cmdclass,
     ext_modules=ext_modules,
-    version='0.1.1',
+    version='0.3.0',
     author='Enthought, Inc.',
     author_email='srossross@enthought.com',
     url='srossross.github.com/oclpb',
