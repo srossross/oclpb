@@ -9,6 +9,7 @@ from os.path import join, isfile
 import os
 import sys
 from warnings import warn
+from os.path import isdir
 
 try:
     from Cython.Distutils.build_ext import build_ext
@@ -19,6 +20,10 @@ except ImportError:
 
 if 'darwin' in sys.platform:
     flags = dict(extra_link_args=['-framework', 'OpenCL'])
+elif sys.platform.startswith('win32'):
+    if isdir(r'C:\Program Files\ATI Stream'):
+        flags = dict(libraries=['OpenCL'], include_dirs=[r'C:\Program Files\ATI Stream\include'],
+                     library_dirs=[r'C:\Program Files\ATI Stream\lib\x86'])
 else:
     flags = dict(libraries=['OpenCL'], include_dirs=['/usr/include/CL'], library_dirs=['/usr/lib'])
 
@@ -37,9 +42,9 @@ else:
     ext_modules = [extension(name, '.c') for name in pyx_extention_names]
 
 try:
-    long_description=open('README').read()
+    long_description = open('README').read()
 except IOError as err:
-    long_description=str(err)
+    long_description = str(err)
 
 setup(
     name='opencl-for-python',
