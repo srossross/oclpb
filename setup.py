@@ -36,14 +36,19 @@ else:
     
     ext_modules = [extension(name, '.c') for name in pyx_extention_names]
 
+try:
+    long_description=open('README').read()
+except IOError as err:
+    long_description=str(err)
+
 setup(
-    name='OpenCL for Python',
+    name='opencl-for-python',
     cmdclass=cmdclass,
     ext_modules=ext_modules,
-    version='0.1.1',
+    version='0.3.2',
     author='Enthought, Inc.',
     author_email='srossross@enthought.com',
-    url='srossross.github.com/oclpb',
+    url='http://srossross.github.com/oclpb',
     classifiers=[c.strip() for c in """\
         Development Status :: 5 - Production/Stable
         Intended Audience :: Developers
@@ -61,7 +66,7 @@ setup(
         Topic :: Software Development :: Libraries
         """.splitlines() if len(c.strip()) > 0],
     description='Open CL Python bindings',
-    long_description=open('README.rst').read(),
+    long_description=long_description,
     license='BSD',
     packages=find_packages(),
     platforms=["Windows", "Linux", "Mac OS-X", "Unix", "Solaris"],
