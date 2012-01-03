@@ -163,12 +163,22 @@ cdef class Context:
                 raise OpenCLException(err_code, _context_errors)
         else:
             dtype = < cl_device_type > device_type
+            
+            if props == NULL:
+                import opencl
+                properties = ContextProperties()
+                properties.platform = opencl.get_platforms()[0] 
+                props = properties.context_properties()
             self.context_id = clCreateContextFromType(props, dtype, pfn_notify, user_data, & err_code)
     
             if err_code != CL_SUCCESS:
                 raise OpenCLException(err_code, _context_errors)
+            
+#        TODO: Free props
+#        if props != NULL:
+#            free(props)
+#            props = NULL
 
-    
     def __repr__(self):
         return '<%s num_devices=%i>' % (type(self).__name__, self.num_devices)
     
