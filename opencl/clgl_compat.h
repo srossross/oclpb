@@ -8,11 +8,11 @@
 
 #define CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE 0
 
-static void * CGLGetCurrentContext(){reutrn NULL;}
-static void * CGLGetShareGroup(void *){reutrn NULL;}
+static void * CGLGetCurrentContext(void){return NULL;}
+static void * CGLGetShareGroup(void *f){return NULL;}
 
-#include <gl/gl.h>
-#include <cl/cl_gl.h>
-#include <cl/cl_gl_ext.h>
+//#include <GL/gl.h>
+#include <CL/cl_gl.h>
+#include <CL/cl_gl_ext.h>
 
 #endif

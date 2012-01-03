@@ -9,7 +9,7 @@ from os.path import join, isfile
 import os
 import sys
 from warnings import warn
-from os.path import isdir
+from os.path import isdir, join
 
 try:
     from Cython.Distutils.build_ext import build_ext
@@ -25,7 +25,9 @@ elif sys.platform.startswith('win32'):
         flags = dict(libraries=['OpenCL'], include_dirs=[r'C:\Program Files\ATI Stream\include'],
                      library_dirs=[r'C:\Program Files\ATI Stream\lib\x86'])
 else:
-    flags = dict(libraries=['OpenCL'], include_dirs=['/usr/include/CL'], library_dirs=['/usr/lib'])
+    AMDAPPSDKROOT = os.environ.get('AMDAPPSDKROOT', '/usr/local')
+    
+    flags = dict(libraries=['OpenCL'], include_dirs=[join(AMDAPPSDKROOT,'include')], library_dirs=[join(AMDAPPSDKROOT, 'lib')])
 
 extension = lambda name, ext: Extension('.'.join(('opencl', name)), [join('opencl', name + ext)], **flags)
 pyx_extention_names = [name[:-4] for name in os.listdir('opencl') if name.endswith('.pyx')]

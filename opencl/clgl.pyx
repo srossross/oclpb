@@ -18,6 +18,7 @@ from opencl.context cimport CyContext_GetID, CyContext_Check
 from opencl.queue cimport CyQueue_GetID, CyQueue_Check, _make_wait_list
 from opencl.event cimport PyEvent_New
 
+from OpenGL import GL
 opencl.errors.all_opencl_errors.update(
     {
      CL_INVALID_GL_OBJECT : 'CL_INVALID_GL_OBJECT',
@@ -28,41 +29,40 @@ opencl.errors.OpenCLErrorStrings.update({
     })
 
 IMAGE_FORMAT_MAP = (
-                    
 
-    (GL_RGBA8, (CL_RGBA, CL_UNORM_INT8)),
-    (GL_RGBA8, (CL_BGRA, CL_UNORM_INT8)),
+    (GL.GL_RGBA8, (CL_RGBA, CL_UNORM_INT8)),
+    (GL.GL_RGBA8, (CL_BGRA, CL_UNORM_INT8)),
 
-    (GL_RGBA, (CL_RGBA, CL_UNORM_INT8)),
+    (GL.GL_RGBA, (CL_RGBA, CL_UNORM_INT8)),
     
-    (GL_BGRA, (CL_RGBA, CL_UNORM_INT8)),
-    (GL_UNSIGNED_INT_8_8_8_8_REV, (CL_RGBA, CL_UNORM_INT8)),
+    (GL.GL_BGRA, (CL_RGBA, CL_UNORM_INT8)),
+    (GL.GL_UNSIGNED_INT_8_8_8_8_REV, (CL_RGBA, CL_UNORM_INT8)),
 
-    (GL_RGBA16 , (CL_RGBA, CL_UNORM_INT16)),
+    (GL.GL_RGBA16 , (CL_RGBA, CL_UNORM_INT16)),
 
-#    (GL_RGBA8I, (CL_RGBA, CL_SIGNED_INT8)),
-    (GL_RGBA8I_EXT, (CL_RGBA, CL_SIGNED_INT8)),
+#    (GL.GL_RGBA8I, (CL_RGBA, CL_SIGNED_INT8)),
+    (GL.GL_RGBA8I_EXT, (CL_RGBA, CL_SIGNED_INT8)),
 
-#    (GL_RGBA16I, (CL_RGBA, CL_SIGNED_INT16)),
-    (GL_RGBA16I_EXT, (CL_RGBA, CL_SIGNED_INT16)),
+#    (GL.GL_RGBA16I, (CL_RGBA, CL_SIGNED_INT16)),
+    (GL.GL_RGBA16I_EXT, (CL_RGBA, CL_SIGNED_INT16)),
 
-#    (GL_RGBA32I, (CL_RGBA, CL_SIGNED_INT32)),
-    (GL_RGBA32I_EXT, (CL_RGBA, CL_SIGNED_INT32)),
+#    (GL.GL_RGBA32I, (CL_RGBA, CL_SIGNED_INT32)),
+    (GL.GL_RGBA32I_EXT, (CL_RGBA, CL_SIGNED_INT32)),
 
-#    (GL_RGBA8UI, (CL_RGBA, CL_UNSIGNED_INT8)),
-    (GL_RGBA8UI_EXT, (CL_RGBA, CL_UNSIGNED_INT8)),
+#    (GL.GL_RGBA8UI, (CL_RGBA, CL_UNSIGNED_INT8)),
+    (GL.GL_RGBA8UI_EXT, (CL_RGBA, CL_UNSIGNED_INT8)),
 
-#    (GL_RGBA16UI, (CL_RGBA, CL_UNSIGNED_INT16)),
-    (GL_RGBA16UI_EXT, (CL_RGBA, CL_UNSIGNED_INT16)),
+#    (GL.GL_RGBA16UI, (CL_RGBA, CL_UNSIGNED_INT16)),
+    (GL.GL_RGBA16UI_EXT, (CL_RGBA, CL_UNSIGNED_INT16)),
 
-#    (GL_RGBA32UI, (CL_RGBA, CL_UNSIGNED_INT32)),
-    (GL_RGBA32UI_EXT, (CL_RGBA, CL_UNSIGNED_INT32)),
+#    (GL.GL_RGBA32UI, (CL_RGBA, CL_UNSIGNED_INT32)),
+    (GL.GL_RGBA32UI_EXT, (CL_RGBA, CL_UNSIGNED_INT32)),
 
-#    (GL_RGBA16F, (CL_RGBA, CL_HALF_FLOAT)),
-    (GL_RGBA16F_ARB, (CL_RGBA, CL_HALF_FLOAT)),
+#    (GL.GL_RGBA16F, (CL_RGBA, CL_HALF_FLOAT)),
+    (GL.GL_RGBA16F_ARB, (CL_RGBA, CL_HALF_FLOAT)),
 
-#    (GL_RGBA32F, (CL_RGBA, CL_FLOAT)),
-    (GL_RGBA32F_ARB, (CL_RGBA, CL_FLOAT)),
+#    (GL.GL_RGBA32F, (CL_RGBA, CL_FLOAT)),
+    (GL.GL_RGBA32F_ARB, (CL_RGBA, CL_FLOAT)),
 
     )
 
@@ -127,14 +127,14 @@ def is_gl_object(memobject):
     
 def get_gl_name(memobject):
     '''
-    get_gl_name(memobject) -> GLuint
+    get_gl_name(memobject) -> cl_GLuint
     
     Get the vertex or texture buffer `memobject` was created with.  
     '''
     if not CyMemoryObject_Check(memobject):
         raise TypeError("argument must be of type 'cl.MemoryObject'")
     
-    cdef GLuint gl_object_name = 0
+    cdef cl_GLuint gl_object_name = 0
     cdef cl_int err_code = 0
     cdef cl_mem memobj = CyMemoryObject_GetID(memobject)
     err_code = clGetGLObjectInfo(memobj, NULL, & gl_object_name)
@@ -163,41 +163,37 @@ def empty_gl_image(context, shape, image_format):
     cdef Py_buffer * buffer = < Py_buffer *> malloc(sizeof(Py_buffer))
     cdef cl_int err_code
     
-    cdef GLint miplevel = 0
-    cdef GLint ntextures = 0
-    cdef GLuint texture
+    cdef cl_GLint miplevel = 0
+    cdef cl_GLint ntextures = 0
+    cdef cl_GLuint texture
     cdef cl_int width = shape[0]
     cdef cl_int height = shape[1]
     cdef cl_int depth = 1
-    cdef GLenum format_e = GL_RGBA
-    cdef GLenum type_e = GL_UNSIGNED_BYTE
+    cdef cl_GLenum format_e = GL.GL_RGBA
+    cdef cl_GLenum type_e = GL.GL_UNSIGNED_BYTE
     cdef cl_mem image
     
     if len(shape) == 2:
-        glEnable(GL_TEXTURE_2D)
-        glGenTextures(1, & texture) 
-        glBindTexture(GL_TEXTURE_2D, texture)
-        glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0, format_e, type_e, NULL)
-        glBindTexture(GL_TEXTURE_2D, 0)
+        GL.glEnable(GL.GL_TEXTURE_2D)
+        texture = GL.glGenTextures(1) 
+        GL.glBindTexture(GL.GL_TEXTURE_2D, texture)
+        GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, 4, width, height, 0, format_e, type_e, None)
+        GL.glBindTexture(GL.GL_TEXTURE_2D, 0)
         
-        image = clCreateFromGLTexture2D(ctx, flags, GL_TEXTURE_2D, miplevel, texture, & err_code)
+        image = clCreateFromGLTexture2D(ctx, flags, GL.GL_TEXTURE_2D, miplevel, texture, & err_code)
         
     else : # len(shape) == 3
         depth = shape[2]
-        glEnable(GL_TEXTURE_3D)
-        glGenTextures(1, & texture) 
-        glBindTexture(GL_TEXTURE_3D, texture)
-        glTexImage3D(GL_TEXTURE_3D, 0, 4, width, height, depth, 0, format_e, type_e, NULL)
-        glBindTexture(GL_TEXTURE_3D, 0)
+        GL.glEnable(GL.GL_TEXTURE_3D)
+        texture = GL.glGenTextures(1) 
+        GL.glBindTexture(GL.GL_TEXTURE_3D, texture)
+        GL.glTexImage3D(GL.GL_TEXTURE_3D, 0, 4, width, height, depth, 0, format_e, type_e, None)
+        GL.glBindTexture(GL.GL_TEXTURE_3D, 0)
         
-        image = clCreateFromGLTexture3D(ctx, flags, GL_TEXTURE_3D, miplevel, texture, & err_code)
+        image = clCreateFromGLTexture3D(ctx, flags, GL.GL_TEXTURE_3D, miplevel, texture, & err_code)
         
     if err_code != CL_SUCCESS:
         raise OpenCLException(err_code)
-
-    cdef gl_err = glGetError()
-    if gl_err != GL_NO_ERROR:
-        raise Exception((gl_err, "OpenGL error"))
 
     return CyImage_New(image)
     
@@ -234,29 +230,27 @@ def empty_gl(context, shape, ctype='B', gl_buffer=None):
     for i in shape:
         size *= i
        
-    cdef GLuint vbo = 0
-    cdef GLsizeiptr nbytes = 0
+    cdef cl_GLuint vbo = 0
+    cdef size_t nbytes = 0
     
     if gl_buffer is None:
-        glGenBuffers(1, & vbo)
-        glBindBuffer(GL_ARRAY_BUFFER, vbo)
+        vbo = GL.glGenBuffers(1)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo)
         
         nbytes = buffer.itemsize
         
         for i in shape:
             nbytes *= i
                     
-        glBufferData(GL_ARRAY_BUFFER, nbytes, NULL, GL_STATIC_DRAW)
+        GL.glBufferData(GL.GL_ARRAY_BUFFER, nbytes, None, GL.GL_STATIC_DRAW)
         
-        if glGetError() != GL_NO_ERROR:
-            raise Exception("OpenGL error")
     else:
-        vbo = < GLuint > gl_buffer
+        vbo = < cl_GLuint > gl_buffer
     
     cdef cl_mem buffer_id = clCreateFromGLBuffer(ctx, flags, vbo, & err_code)
     
     if gl_buffer is None:
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
     
     if err_code != CL_SUCCESS:
         raise OpenCLException(err_code)
