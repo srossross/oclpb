@@ -37,7 +37,7 @@ else:
     ext_modules = [extension(name, '.c') for name in pyx_extention_names]
 
 try:
-    long_description=open('README').read()
+    long_description=open('README.rst').read()
 except IOError as err:
     long_description=str(err)
 
