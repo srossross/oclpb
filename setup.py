@@ -5,16 +5,19 @@ Created on Sep 24, 2011
 '''
 
 from setuptools import setup, find_packages, Extension
-from os.path import join, isfile
+from os.path import join, isfile, isdir
 import os
 import sys
 from warnings import warn
-from os.path import isdir, join
 
 try:
     from Cython.Distutils.build_ext import build_ext
     cmdclass = {'build_ext': build_ext}
 except ImportError:
+    cmdclass = { }
+
+DONT_USE_CYTHON = not os.environ.get('CL_NO_CYTHON')
+if DONT_USE_CYTHON:
     cmdclass = { }
     
 
@@ -45,6 +48,8 @@ else:
 extension = lambda name, ext: Extension('.'.join(('opencl', name)), [join('opencl', name + ext)], **flags)
 pyx_extention_names = [name[:-4] for name in os.listdir('opencl') if name.endswith('.pyx')]
 
+
+
 if cmdclass:
     ext_modules = [extension(name, '.pyx') for name in pyx_extention_names]
 else:
@@ -60,12 +65,16 @@ try:
     long_description = open('README.rst').read()
 except IOError as err:
     long_description = str(err)
+try:
+    version_str = open('version.txt').read()
+except IOError as err:
+    version_str = '???'
 
 setup(
     name='opencl-for-python',
     cmdclass=cmdclass,
     ext_modules=ext_modules,
-    version='0.3.2',
+    version=version_str,
     author='Enthought, Inc.',
     author_email='srossross@enthought.com',
     url='http://srossross.github.com/oclpb',
