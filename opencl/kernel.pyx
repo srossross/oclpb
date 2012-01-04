@@ -143,10 +143,10 @@ class contextual_memory(object):
         cdef void * ptr
         
         #FIXME: this should be better #sub-buffer is not supported
-        if arg.context.devices[0].driver_version == '1.0': 
-            base = arg.base
-            if CyMemoryObject_Check(base):
-                arg = base 
+#        if arg.context.devices[0].driver_version == '1.0': 
+        base = arg.base
+        if CyMemoryObject_Check(base):
+            arg = base 
 
         ptr = CyMemoryObject_GetID(arg)
         ctype_ptr = ctypes.c_void_p(< size_t > ptr)

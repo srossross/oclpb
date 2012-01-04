@@ -2,7 +2,7 @@
 
 from _cl_platform cimport *
     
-cdef extern from "OpenCL/cl.h":
+cdef extern from "cl_header.h":
     
     enum: 
         CL_SUCCESS

@@ -71,18 +71,18 @@ class TestBuffer(unittest.TestCase):
         
         clmem = cl.from_host(ctx, a, copy=False)
         
-        event = PyEvent()
-        def set_event(mem):
-            event.set()
+#        event = PyEvent()
+#        def set_event(mem):
+#            event.set()
             
-        clmem.add_destructor_callback(set_event)
+#        clmem.add_destructor_callback(set_event)
         
         self.assertEqual(refcount + 1, sys.getrefcount(a))
         
         del clmem
         gc.collect()
         
-        self.assertTrue(event.wait(1), 'event timed out. destructor_callback not called')
+#        self.assertTrue(event.wait(1), 'event timed out. destructor_callback not called')
         
         self.assertEqual(refcount, sys.getrefcount(a))
         
@@ -104,8 +104,6 @@ class TestBuffer(unittest.TestCase):
         else:
             #TODO: should there be a test here?
             pass
-        
-        
         
     def test_read_write(self):
         a = np.array([[1, 2], [3, 4]])
@@ -188,22 +186,11 @@ class TestBuffer(unittest.TestCase):
 
         self.assertEqual(clbuf._refcount, 2)
         
-        event = PyEvent()
-        def callback(mem):
-            event.set()
-            
-        new_buf.add_destructor_callback(callback)
-        
         del new_buf
         gc.collect()
         
-        timed_out = not event.wait(2)
-        
-        self.assertFalse(timed_out)
-        
-        
         self.assertEqual(clbuf._refcount, 1)
-        
+
         queue = Queue(ctx)
         with clbuf.map(queue) as host:
             self.assertEqual(clbuf._refcount, 1)
@@ -213,8 +200,24 @@ class TestBuffer(unittest.TestCase):
         del host
         gc.collect()
         
-        #GPU does not decrement the ref count
-        #self.assertEqual(clbuf._refcount, 2, "")
+        #GPU may not decrement the ref count
+        #unless finish is called
+        queue.finish()
+        self.assertEqual(clbuf._refcount, 1)
+            
+        event = PyEvent()
+        def callback(mem):
+            event.set()
+        
+        
+        #clbuf.add_destructor_callback(callback)
+        
+        #del clbuf
+        #gc.collect()
+        
+        #timed_out = not event.wait(1)
+        #self.assertFalse(timed_out)
+
             
     def test_get_slice(self):
         
@@ -254,9 +257,9 @@ class TestBuffer(unittest.TestCase):
         
         self.assertEqual(new_view.ndim, a[:, 0].ndim)
         self.assertEqual(new_view.shape, a[:, 0].shape)
-        self.assertEqual(new_view.base_offset, 0)
+        self.assertEqual(new_view.offset_, 0)
         self.assertEqual(new_view.strides, a[:, 0].strides)
-
+        
         with new_view.map(queue) as buf:
             b = np.asarray(buf)
             self.assertTrue(np.all(b == a[:, 0]))
@@ -359,6 +362,7 @@ class TestBuffer(unittest.TestCase):
             
         with copy_of.map(queue) as cpy:
             b = np.asarray(cpy)
+            
             self.assertTrue(np.all(a[1::2] == b))
             
         copy_of = clbuf[1:-1].copy(queue)
@@ -395,7 +399,6 @@ class TestBuffer(unittest.TestCase):
             with copy_of.map(queue) as cpy:
                 b = np.asarray(cpy)
                 expected = a[idx0, idx1]
-                
                 self.assertTrue(np.all(expected == b), (idx0, idx1))
                 
     @unittest.expectedFailure     
@@ -477,6 +480,7 @@ class TestImage(unittest.TestCase):
     def test_supported_formats(self):
         image_format = cl.ImageFormat.supported_formats(ctx)[0]
         
+#        print(cl.ImageFormat.CHANNEL_ORDERS)
         format_copy = cl.ImageFormat.from_ctype(image_format.ctype)
         
         self.assertEqual(image_format, format_copy)
