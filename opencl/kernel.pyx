@@ -592,6 +592,10 @@ cdef class Kernel:
                 
             err_code = clSetKernelArg(self.kernel_id, arg_index, arg_size, arg_value)
             if err_code != CL_SUCCESS:
+                if err_code == CL_INVALID_ARG_SIZE:
+                    msg = 'argument %r had size of %i (please check kernel source)' %(argnames[arg_index], arg_size)
+                    raise OpenCLException(err_code, msg=msg)
+
                 raise OpenCLException(err_code, set_kerne_arg_errors)
             
         #Keeping cargs alive until enqueue_nd_range_kernel in case cargs is a from_host memory object.

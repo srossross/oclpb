@@ -9,13 +9,6 @@
 .settings
 build
 _build
+dist
 
-copencl.c
-kernel.c
-type_formats.c
-cl_mem.c
-context.c
-errors.c
-queue.c
-clgl.c
-cl_types.c
+opencl/*.c
