@@ -7,7 +7,6 @@ Welcome to OpenCL for Python's documentation!
 ===============================================
 
 
-
 Links:
 +++++++++++
 

@@ -9,6 +9,7 @@ from os.path import join, isfile
 import os
 import sys
 from warnings import warn
+from os.path import isdir, join
 
 try:
     from Cython.Distutils.build_ext import build_ext
@@ -19,8 +20,27 @@ except ImportError:
 
 if 'darwin' in sys.platform:
     flags = dict(extra_link_args=['-framework', 'OpenCL'])
+elif sys.platform.startswith('win32'):
+    
+    include_dirs = []
+    library_dirs = []
+    
+    AMDAPPSDKROOT = os.environ.get('AMDAPPSDKROOT', r'does\not\exist')
+    if isdir(AMDAPPSDKROOT):
+        include_dirs.append(join(AMDAPPSDKROOT, 'include'))
+        library_dirs.append(join(AMDAPPSDKROOT, 'lib'))
+        
+    if isdir(r'C:\Program Files\ATI Stream'):
+        include_dirs.append(r'C:\Program Files\ATI Stream\include')
+        library_dirs.append(r'C:\Program Files\ATI Stream\lib\x86')
+    
+        
+    flags = dict(libraries=['OpenCL'], include_dirs=include_dirs, library_dirs=library_dirs)
+    
 else:
-    flags = dict(libraries=['OpenCL'], include_dirs=['/usr/include/CL'], library_dirs=['/usr/lib'])
+    AMDAPPSDKROOT = os.environ.get('AMDAPPSDKROOT', '/usr/local')
+    
+    flags = dict(libraries=['OpenCL'], include_dirs=[join(AMDAPPSDKROOT, 'include')], library_dirs=[join(AMDAPPSDKROOT, 'lib')])
 
 extension = lambda name, ext: Extension('.'.join(('opencl', name)), [join('opencl', name + ext)], **flags)
 pyx_extention_names = [name[:-4] for name in os.listdir('opencl') if name.endswith('.pyx')]
@@ -37,15 +57,15 @@ else:
     ext_modules = [extension(name, '.c') for name in pyx_extention_names]
 
 try:
-    long_description=open('README').read()
+    long_description = open('README.rst').read()
 except IOError as err:
-    long_description=str(err)
+    long_description = str(err)
 
 setup(
     name='opencl-for-python',
     cmdclass=cmdclass,
     ext_modules=ext_modules,
-    version='0.3.2',
+    version='0.3.3',
     author='Enthought, Inc.',
     author_email='srossross@enthought.com',
     url='http://srossross.github.com/oclpb',
@@ -70,4 +90,5 @@ setup(
     license='BSD',
     packages=find_packages(),
     platforms=["Windows", "Linux", "Mac OS-X", "Unix", "Solaris"],
+    package_data={'opencl': ['*.h']}
 )

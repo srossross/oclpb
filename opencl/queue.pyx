@@ -712,6 +712,7 @@ cdef class MemoryViewMap:
         view.readonly = 0 if writable else 1 
         
 
+        
         view.format = buffer.format
         view.ndim = buffer.ndim
         view.shape = buffer.shape
@@ -720,7 +721,7 @@ cdef class MemoryViewMap:
         view.strides = buffer.strides
         view.suboffsets = NULL
         
-        view.buf = self.bytes
+        view.buf = self.bytes + <size_t>buffer.buf
         
     def __releasebuffer__(self, Py_buffer * view):
         pass

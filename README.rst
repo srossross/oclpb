@@ -6,7 +6,7 @@ This is yet another set of Python bindings for OpenCL.
 Links:
 +++++++++++
 
-* `Homepage <http://srossross.github.com/oclpb/develop/>`_
+* `Homepage <http://srossross.github.com/oclpb/>`_
 * `Issue Tracker <https://github.com/srossross/oclpb/issues/>`_
 
 
