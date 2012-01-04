@@ -1,5 +1,5 @@
 include license.rst README.rst
-include opencl/clgl_compat.h opencl/cl_header.h
+include opencl/*.h opencl/*.c
 recursive-include examples *.txt *.py
 recursive-include opencl *.pxd *.pyx
 recursive-include doc *
