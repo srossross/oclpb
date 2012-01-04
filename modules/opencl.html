@@ -3,17 +3,20 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>opencl &mdash; Clyther v1.0.0 documentation</title>
+    <title>opencl &mdash; Clyther 0.4.0 documentation</title>
+    
     <link rel="stylesheet" href="../static/default.css" type="text/css" />
     <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0.0',
+        VERSION:     '0.4.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="../static/jquery.js"></script>
     <script type="text/javascript" src="../static/underscore.js"></script>
     <script type="text/javascript" src="../static/doctools.js"></script>
-    <link rel="top" title="Clyther v1.0.0 documentation" href="../index.html" />
+    <link rel="top" title="Clyther 0.4.0 documentation" href="../index.html" />
     <link rel="up" title="Module code" href="index.html" /> 
   </head>
   <body>
@@ -35,7 +38,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../index.html">Clyther v1.0.0 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Clyther 0.4.0 documentation</a> &raquo;</li>
           <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>  
@@ -66,6 +69,28 @@
 <span class="kn">from</span> <span class="nn">.cl_types</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="n">CommandQueue</span> <span class="o">=</span> <span class="n">Queue</span>
+
+
+<span class="k">def</span> <span class="nf">get_include</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Return the directory that contains the OpenCL for Python \*.h header files.</span>
+<span class="sd">    </span>
+<span class="sd">    Extension modules that need to compile against OpenCL for Python should use this</span>
+<span class="sd">    function to locate the appropriate include directory.</span>
+<span class="sd">    </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    When using ``distutils``, for example in ``setup.py``.</span>
+<span class="sd">    ::</span>
+<span class="sd">    </span>
+<span class="sd">        import opencl as cl</span>
+<span class="sd">        ...</span>
+<span class="sd">        Extension(&#39;extension_name&#39;, ...</span>
+<span class="sd">                include_dirs=[cl.get_include()])</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">dirname</span>
+    <span class="k">return</span> <span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span>
 </pre></div>
 
           </div>
@@ -76,7 +101,7 @@
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -99,13 +124,13 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../index.html">Clyther v1.0.0 documentation</a> &raquo;</li>
+        <li><a href="../index.html">Clyther 0.4.0 documentation</a> &raquo;</li>
           <li><a href="index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Sean Ross-Ross.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
     </div>
   </body>
 </html>
