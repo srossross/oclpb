@@ -835,7 +835,7 @@ cdef class ImageFormat:
                                 }
     
     _CHANNEL_ORDER_CTYPE_MAP = {
-        #CL_R : 'T{%(dtype)s:r:}',
+        CL_R : 'T{%(dtype)s:r:}',
         #CL_Rx : 'CL_Rx',
         #CL_A : 'CL_A',
         CL_INTENSITY : 'T{%(dtype)s:i:}',
