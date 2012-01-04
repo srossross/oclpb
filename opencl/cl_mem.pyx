@@ -465,7 +465,11 @@ cdef class DeviceMemoryView(MemoryObject):
             if not copy:
                 # This will keep the referenced array around until we are done with 
                 # the opencl memory
-                cy_buffer.add_destructor_callback(mock_callback, host)
+                
+                #FIXME: for now this function does not appear to be safe on ubuntu
+                #cy_buffer.add_destructor_callback(mock_callback, host)
+                
+                cy_buffer._host_pointer = host
                 
             return cy_buffer
         else:
@@ -523,30 +527,34 @@ cdef class DeviceMemoryView(MemoryObject):
             buffer.shape[i] = shape[i]
             buffer.strides[i] = strides[i]
 
-        if offset == 0:
-            return CyView_Create(self.buffer_id, buffer, self.ctype, 1)
-
         cdef cl_mem sub_buffer = NULL
         cdef cl_mem base = self._get_base()
-        
-        if base == NULL:
-            base = self.buffer_id
-        
+
         cdef cl_int err_code
         cdef size_t mem_size = self.mem_size
         cdef cl_buffer_region buffer_create_info
         
-        buffer_create_info.origin = offset
-        buffer_create_info.size = mem_size - offset
+        if offset == 0:
+            new_view =  CyView_Create(self.buffer_id, buffer, self.ctype, 1)
+        else:
+        
+            if base == NULL:
+                base = self.buffer_id
+        
+            buffer_create_info.origin = offset
+            buffer_create_info.size = mem_size - offset
 
 #        sub_buffer = clCreateSubBuffer(base, CL_MEM_READ_WRITE, CL_BUFFER_CREATE_TYPE_REGION, & buffer_create_info, & err_code)
 #        if err_code != CL_SUCCESS:
 #            raise OpenCLException(err_code, msg='offset=%r; mem_size=%r; strides=%r; shape=%r' % (offset, mem_size, strides, shape))
         
-        buffer.buf = < void *> offset
+            buffer.buf = < void *> offset
         
-        return CyView_Create(base, buffer, self.ctype, 1)
+            new_view = CyView_Create(base, buffer, self.ctype, 1)
     
+        new_view._host_pointer = self._host_pointer
+        
+        return new_view 
     property size:
         'Total number of elements'
         def __get__(self):
