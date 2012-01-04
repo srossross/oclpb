@@ -16,10 +16,9 @@ try:
 except ImportError:
     cmdclass = { }
 
-DONT_USE_CYTHON = not os.environ.get('CL_NO_CYTHON')
+DONT_USE_CYTHON = os.environ.get('CL_NO_CYTHON')
 if DONT_USE_CYTHON:
     cmdclass = { }
-    
 
 if 'darwin' in sys.platform:
     flags = dict(extra_link_args=['-framework', 'OpenCL'])
