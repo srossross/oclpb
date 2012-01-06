@@ -448,7 +448,7 @@ cdef class Queue:
                 
                 work_group_size = kernel.work_group_size(self.device)
                 prod_shape = 1
-                for d in range(local_work_size):
+                for d in local_work_size:
                     prod_shape *= d
                 if work_group_size < prod_shape:
                     ps = '*'.join([str(x) for x in local_work_size])
