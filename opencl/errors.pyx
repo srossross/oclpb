@@ -46,6 +46,7 @@ CL_OUT_OF_HOST_MEMORY: 'CL_OUT_OF_HOST_MEMORY',
 CL_OUT_OF_RESOURCES: 'CL_OUT_OF_RESOURCES',
 CL_DEVICE_NOT_FOUND: 'CL_DEVICE_NOT_FOUND',
 CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST: 'CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST',
+CL_PROFILING_INFO_NOT_AVAILABLE: 'CL_PROFILING_INFO_NOT_AVAILABLE',
 }
 
 OpenCLErrorStrings = {
@@ -84,6 +85,10 @@ completed.
     CL_INVALID_KERNEL_DEFINITION : ('The function definition for __kernel  function ' 
                                     'given by kernel_name such as the number of arguments, the argument types are not the' 
                                     'same for all devices for which the program executable has been built'),
+                      
+    CL_PROFILING_INFO_NOT_AVAILABLE: ('The CL_QUEUE_PROFILING_ENABLE flag '
+                                      'is not set for the command-queue, if the execution status of the command identified by ' 
+                                      'event is not CL_COMPLETE or if event is a user event objec'),
                 }
 
 

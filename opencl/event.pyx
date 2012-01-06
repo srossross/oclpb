@@ -92,6 +92,87 @@ cdef class Event:
             
             return status
         
+    property profile_start:
+        def __get__(self):
+            cdef cl_int err_code
+            cdef cl_ulong status
+
+            err_code = clGetEventProfilingInfo(self.event_id, CL_PROFILING_COMMAND_START, sizeof(cl_ulong), & status, NULL)
+
+            if err_code != CL_SUCCESS:
+                if err_code == CL_PROFILING_INFO_NOT_AVAILABLE:
+                    if self.status != self.COMPLETE:
+                        raise OpenCLException(err_code, msg='Event must have (status == Event.COMPLETE) before it can be profiled')
+                    else:
+                        raise OpenCLException(err_code, msg='Queue must be created with profile=True argument in constructor.')
+                
+                                
+                raise OpenCLException(err_code)
+            
+            return status
+        
+    property profile_end:
+        def __get__(self):
+            cdef cl_int err_code
+            cdef cl_ulong status
+
+            err_code = clGetEventProfilingInfo(self.event_id, CL_PROFILING_COMMAND_END, sizeof(cl_ulong), & status, NULL)
+
+            if err_code != CL_SUCCESS:
+                if err_code == CL_PROFILING_INFO_NOT_AVAILABLE:
+                    if self.status != self.COMPLETE:
+                        raise OpenCLException(err_code, msg='Event must have (status == Event.COMPLETE) before it can be profiled')
+                    else:
+                        raise OpenCLException(err_code, msg='Queue must be created with profile=True argument in constructor.')
+                
+                                
+                raise OpenCLException(err_code)
+            
+            return status
+
+    property duration:
+        def __get__(self):
+            return self.profile_end - self.profile_start
+    
+    property profile_queued:
+        def __get__(self):
+            cdef cl_int err_code
+            cdef cl_ulong status
+
+            err_code = clGetEventProfilingInfo(self.event_id, CL_PROFILING_COMMAND_QUEUED, sizeof(cl_ulong), & status, NULL)
+
+            if err_code != CL_SUCCESS:
+                if err_code == CL_PROFILING_INFO_NOT_AVAILABLE:
+                    if self.status != self.COMPLETE:
+                        raise OpenCLException(err_code, msg='Event must have (status == Event.COMPLETE) before it can be profiled')
+                    else:
+                        raise OpenCLException(err_code, msg='Queue must be created with profile=True argument in constructor.')
+                
+                                
+                raise OpenCLException(err_code)
+            
+            return status
+
+    property profile_submitted:
+        def __get__(self):
+            cdef cl_int err_code
+            cdef cl_ulong status
+
+            err_code = clGetEventProfilingInfo(self.event_id, CL_PROFILING_COMMAND_SUBMIT, sizeof(cl_ulong), & status, NULL)
+
+            if err_code != CL_SUCCESS:
+                if err_code == CL_PROFILING_INFO_NOT_AVAILABLE:
+                    if self.status != self.COMPLETE:
+                        raise OpenCLException(err_code, msg='Event must have (status == Event.COMPLETE) before it can be profiled')
+                    else:
+                        raise OpenCLException(err_code, msg='Queue must be created with profile=True argument in constructor.')
+                
+                                
+                raise OpenCLException(err_code)
+            
+            return status
+            
+        
     def add_callback(self, callback):
         '''
         event.add_callback(callback)
