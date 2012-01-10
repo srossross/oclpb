@@ -4,6 +4,7 @@ import ctypes
 
 from opencl.type_formats import type_format, size_from_format, ctype_from_format
 from opencl.errors import OpenCLException
+from opencl import cl_types
 
 from libc.stdlib cimport malloc, free 
 from libc.string cimport strcpy, memcpy
@@ -15,7 +16,7 @@ from _cl cimport *
 from opencl.context cimport CyContext_GetID, CyContext_Create, CyContext_Check
 import sys
 
-mem_layout = ctypes.c_size_t * 8
+mem_layout = cl_types.cl_uint8
     
 cdef extern from "Python.h":
 
@@ -672,7 +673,7 @@ cdef class DeviceMemoryView(MemoryObject):
         
         Read this buffer into a memory view
         '''
-        return queue.enqueue_read_buffer(self, out, 0, self.nbytes, wait_on, blocking_read=blocking)
+        return queue.enqueue_read_buffer(self, out, self.offset_, self.nbytes, wait_on, blocking_read=blocking)
 
     def write(self, queue, buf, wait_on=(), blocking=False):
         '''
@@ -680,7 +681,7 @@ cdef class DeviceMemoryView(MemoryObject):
         
         Write data from a memoryview to the device.
         '''
-        return queue.enqueue_write_buffer(self, buf, 0, self.nbytes, wait_on, blocking_read=blocking)
+        return queue.enqueue_write_buffer(self, buf, self.offset_, self.nbytes, wait_on, blocking_read=blocking)
            
     def __releasebuffer__(self, Py_buffer * view):
         pass

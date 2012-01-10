@@ -1,6 +1,6 @@
 from opencl.errors import OpenCLException
 
-from _cl cimport *
+from _cl cimport * 
  
 from opencl.copencl cimport CyPlatform_GetID, CyPlatform_Create
 from opencl.copencl cimport CyDevice_GetID, CyDevice_Create
@@ -162,7 +162,15 @@ cdef class Context:
             if err_code != CL_SUCCESS:
                 raise OpenCLException(err_code, _context_errors)
         else:
-            dtype = < cl_device_type > device_type
+            if isinstance(device_type, (str, bytes)):
+                if isinstance(device_type, bytes):
+                    device_type = device_type.decode('utf-8')
+                import opencl
+                
+                dtype = < cl_device_type > opencl.Device.DEV_TYPE_MAP[device_type.upper()]
+                
+            else:  
+                dtype = < cl_device_type > device_type
             
             if props == NULL:
                 import opencl

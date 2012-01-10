@@ -40,6 +40,8 @@ cdef extern from "cl_header.h":
         CL_INVALID_ARG_SIZE
         CL_INVALID_KERNEL_DEFINITION 
         
+        CL_PROFILING_INFO_NOT_AVAILABLE
+        
         CL_MISALIGNED_SUB_BUFFER_OFFSET
         CL_MEM_OBJECT_ALLOCATION_FAILURE        
         CL_DEVICE_NOT_AVAILABLE
@@ -77,6 +79,13 @@ cdef extern from "cl_header.h":
         CL_DEVICE_TYPE_DEFAULT,\
         CL_DEVICE_TYPE_ALL,\
         
+    ctypedef enum cl_profiling_info:
+        CL_PROFILING_COMMAND_START
+        CL_PROFILING_COMMAND_END
+        CL_PROFILING_COMMAND_SUBMIT
+        CL_PROFILING_COMMAND_QUEUED
+        
+    
     enum cl_mem_flags:
         CL_MEM_READ_WRITE
         CL_MEM_READ_ONLY

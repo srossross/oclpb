@@ -50,7 +50,7 @@ Links:
 
 
 * `Development documentation <http://srossross.github.com/oclpb/develop/>`_
-* `PyPi <http://pypi.python.org/pypi/oclpb/>`_
+* `PyPi <http://pypi.python.org/pypi/opencl-for-python/>`_
 * `Github <https://github.com/srossross/oclpb/>`_
 * `OpenCL 1.1 spec <http://www.khronos.org/registry/cl/specs/opencl-1.0.29.pdf>`_
 

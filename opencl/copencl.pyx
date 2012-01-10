@@ -177,10 +177,19 @@ cdef class Device:
     processors such as DSPs and the Cell/B.E. processor.
     
     '''
-    DEFAULT = CL_DEVICE_TYPE_DEFAULT
+    ACCELERATOR = CL_DEVICE_TYPE_ACCELERATOR
     ALL = CL_DEVICE_TYPE_ALL
     CPU = CL_DEVICE_TYPE_CPU
+    DEFAULT = CL_DEVICE_TYPE_DEFAULT
     GPU = CL_DEVICE_TYPE_GPU
+    
+    DEV_TYPE_MAP = {
+        'ACCELERATOR' : CL_DEVICE_TYPE_ACCELERATOR,
+        'ALL' : CL_DEVICE_TYPE_ALL,
+        'CPU' : CL_DEVICE_TYPE_CPU,
+        'DEFAULT' : CL_DEVICE_TYPE_DEFAULT,
+        'GPU' : CL_DEVICE_TYPE_GPU,
+                   }
     
     cdef cl_device_id device_id
 

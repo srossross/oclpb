@@ -11,7 +11,13 @@ from .cl_mem import DeviceMemoryView, empty
 from .cl_mem import mem_layout, broadcast
 from .cl_mem import empty_image, Image, ImageFormat
 from .errors import OpenCLException
-import opencl.clgl as gl
+import sys
+
+try:
+    import opencl.clgl as gl
+except:
+    gl = None
+
 
 from_host = DeviceMemoryView.from_host
 
@@ -41,3 +47,12 @@ def get_include():
     '''
     from os.path import dirname
     return dirname(__file__)
+
+def test(stream=sys.stdout, descriptions=True, verbosity=2, failfast=False, buffer=False):
+    import unittest as _unit
+    import os as _os
+    star_dir = _os.path.dirname(__file__)
+    test_suite = _unit.defaultTestLoader.discover(star_dir)
+    runner = _unit.TextTestRunner(stream, descriptions, verbosity, failfast, buffer)
+    runner.run(test_suite)
+    

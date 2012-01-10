@@ -47,7 +47,18 @@ else:
 extension = lambda name, ext: Extension('.'.join(('opencl', name)), [join('opencl', name + ext)], **flags)
 pyx_extention_names = [name[:-4] for name in os.listdir('opencl') if name.endswith('.pyx')]
 
-
+try:
+    import OpenGL.GL
+    have_opengl = True
+except ImportError as err:
+    have_opengl = False
+    print err
+    
+if os.environ.get('NO_OPENGL'):
+    have_opengl = False
+    
+if not have_opengl:
+    pyx_extention_names.remove('clgl')
 
 if cmdclass:
     ext_modules = [extension(name, '.pyx') for name in pyx_extention_names]
