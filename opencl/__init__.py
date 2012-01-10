@@ -51,8 +51,9 @@ def get_include():
 def test(stream=sys.stdout, descriptions=True, verbosity=2, failfast=False, buffer=False):
     import unittest as _unit
     import os as _os
-    star_dir = _os.path.dirname(__file__)
-    test_suite = _unit.defaultTestLoader.discover(star_dir)
+    start_dir = _os.path.dirname(__file__)
+    loader = _unit.TestLoader()
+    test_suite = loader.discover(start_dir, top_level_dir=start_dir)
     runner = _unit.TextTestRunner(stream, descriptions, verbosity, failfast, buffer)
     runner.run(test_suite)
     
