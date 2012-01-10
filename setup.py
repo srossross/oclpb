@@ -75,16 +75,17 @@ try:
     long_description = open('README.rst').read()
 except IOError as err:
     long_description = str(err)
+    
 try:
-    version_str = open('version.txt').read()
+    exec open(join('opencl', 'version.py')).read()
 except IOError as err:
-    version_str = '???'
+    __version__ = '???'
 
 setup(
     name='opencl-for-python',
     cmdclass=cmdclass,
     ext_modules=ext_modules,
-    version=version_str,
+    version=__version__,
     author='Enthought, Inc.',
     author_email='srossross@enthought.com',
     url='http://srossross.github.com/oclpb',
